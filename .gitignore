@@ -1,0 +1,8 @@
+$GIT_DIR/OpenGL Demo/Debug,
+$GIT_DIR/OpenGL Demo/Release,
+$GIT_DIR/OpenGL Demo/res,
+$GIT_DIR/OpenGL Demo/x64,
+$GIT_DIR/OpenGL Demo/OpenGL Demo.sln,
+$GIT_DIR/OpenGL Demo/OpenGL Demo.vcx.proj,
+$GIT_DIR/OpenGL Demo/OpenGL Demo..vcx.proj.filters,
+$GIT_DIR/OpenGL Demo/OpenGL Demo..vcx.proj.user
