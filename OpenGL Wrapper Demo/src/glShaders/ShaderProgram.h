@@ -10,6 +10,8 @@ private:
 	const unsigned int m_id;
 	const std::string m_name;
 
+	bool m_isUsing{ false };
+
 public:
 	ShaderProgram(const std::string& name);
 	~ShaderProgram();
@@ -17,7 +19,7 @@ public:
 	void add(const Shader& shader) const;
 	void link() const;
 
-	void use() const;
+	// use() moved to Renderer
 
 	const unsigned int getID() const;
 };

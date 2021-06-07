@@ -2,12 +2,8 @@
 
 #include <glad 3.3/glad.h>
 
-#include "glObjects/Vertex.h"
-#include "glObjects/VertexBufferObject.h"
-#include "glObjects/VertexArrayObject.h"
 #include "glShaders/Shader.h"
-#include "glShaders/ShaderProgram.h"
-#include "glShaders/ShaderStatusChecker.h"
+#include "Util/GLDebugCallBack.h"
 
 #include <iostream>
 
@@ -32,64 +28,67 @@ void Application::init()
 
 	Shader vertexShader("Vertex", GL_VERTEX_SHADER,
 		R"DELIM(
-
+	
 		#version 330 core
 		layout (location = 0) in vec3 aPos;
-
+	
 		void main()
 		{
 		   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 		}
-
+	
 		)DELIM"
 	);
-
+	
 	Shader fragmentShader("Fragment", GL_FRAGMENT_SHADER,
 		R"DELIM(
-
+	
 		#version 330 core
 		out vec4 FragColor;
-
+	
 		void main()
 		{
 		    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f); 
 		}
-
+	
 		)DELIM"
 	);
+	
+	this->demoShader = std::make_unique<ShaderProgram>("Baby's First Shader Program");
+	
+	demoShader->add(fragmentShader);
+	demoShader->add(vertexShader);
+	checkError("Application::addShaders");
 
-	ShaderProgram shader("Baby's First Shader Program");
+	demoShader->link();
+	checkError("Application::linkShader");
 
-	shader.add(fragmentShader);
-	shader.add(vertexShader);
-	shader.link();
-	shader.use();
+	renderer.setShaderProgram(*demoShader);
+	checkError("Application::setShader");
 
-	/*
-	Vertex vertices[3] =
+	//Vertex vertices[3] =
+	//{
+	//	{  0.0f,  0.5f, 0.0f },
+	//	{ -0.5f, -0.5f, 0.0f },
+	//	{  0.5f, -0.5f, 0.0f },
+	//};
+
+	std::vector<float> vertices =
 	{
-		{  0.0f,  0.5f, 0.0f },
-		{ -0.5f, -0.5f, 0.0f },
-		{  0.5f, -0.5f, 0.0f },
-	};
-	*/
-
-	float vertices[] = {
-	   -0.5f, -0.5f, 0.0f, // left  
-		0.5f, -0.5f, 0.0f, // right 
-		0.0f,  0.5f, 0.0f  // top   
+	  0.0f,  0.5f, 0.0f,
+	 -0.5f, -0.5f, 0.0f,
+	  0.5f, -0.5f, 0.0f,
 	};
 
-	VertexArrayObject vao{ 1 };
-	vao.bind();
+	std::vector<unsigned int> indices =
+	{
+		0, 1, 2
+	};
+	checkError("Application::init");
+	this->demoModel = std::make_unique<Model>(this->loader);
 
-	VertexBufferObject vbo{ 1 };
-	vbo.bind(GL_ARRAY_BUFFER);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-	glEnableVertexAttribArray(0);
+	demoModel->setVertices(this->loader, vertices);
+	demoModel->setIndices(this->loader, indices);
 }
 
 void Application::terminate()
@@ -106,10 +105,9 @@ void Application::applicationLoop()
 		while (this->m_window.pollEvent(event))
 			pollWindowEvents(event);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderer.clear();
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		renderer.draw(*demoModel);
 
 		this->m_window.display();
 	}

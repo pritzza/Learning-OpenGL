@@ -8,14 +8,34 @@ private:
 
 	unsigned int m_bufferType;
 	bool m_isBound{ false };
+	bool m_isFree{ false };
+
+	unsigned int m_numElements;
+	unsigned int m_size;
+
+	// would probably also be useful to know the actual data type and data contents of what each vbo
 
 public:
-	VertexBufferObject(const unsigned int count);
+	VertexBufferObject(const unsigned int count = 1);
 	~VertexBufferObject();
 
-	void bind(const unsigned int bufferType);
+	void free();
+
+	VertexBufferObject(const VertexBufferObject&) = delete;
+	VertexBufferObject operator= (const VertexBufferObject&) = delete;
+	
+	VertexBufferObject(VertexBufferObject&& vao) noexcept;
+
+	void setNumElements(const unsigned int numElements);
+	void setSize(const unsigned int size);
+	void setBufferType(const unsigned int bt);
 
 	const unsigned int getID() const;
 	const unsigned int getBufferType() const;
+	const unsigned int getNumElements() const;
 
+	bool isValid() const;
+
+	friend class Model;
+	friend class Loader;
 };

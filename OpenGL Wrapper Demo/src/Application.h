@@ -2,9 +2,26 @@
 
 #include <SFML/Window.hpp>
 
+#include "Util/Loader.h"
+#include "Util/Renderer.h"
+
+#include "glObjects/Model.h"
+#include "glShaders/ShaderProgram.h"
+
+#include <memory>
+
+class Model;
+class ShaderProgram;
+
 class Application
 {
 private:
+	Loader loader;
+	Renderer renderer{ loader };
+
+	std::unique_ptr<Model> demoModel;
+	std::unique_ptr<ShaderProgram> demoShader;
+
 	sf::ContextSettings m_contextSettings;
 	sf::Window m_window;
 

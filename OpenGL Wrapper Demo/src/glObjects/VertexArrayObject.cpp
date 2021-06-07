@@ -2,6 +2,10 @@
 
 #include <glad 3.3/glad.h>
 
+#include "VertexBufferObject.h"
+
+#include <iostream>
+
 VertexArrayObject::VertexArrayObject(const unsigned int count)
 	:
 	m_count{ count }
@@ -11,16 +15,26 @@ VertexArrayObject::VertexArrayObject(const unsigned int count)
 
 VertexArrayObject::~VertexArrayObject()
 {
-	glDeleteVertexArrays(m_count, &m_id);
+	if (!m_isFree)
+		std::cout << "VertexArrayObject " << m_id << " memory leak\n";
 }
 
-void VertexArrayObject::bind()
+void VertexArrayObject::free()
 {
-	this->m_isBound = true;
-	glBindVertexArray(this->m_id);
+	if (!m_isFree)
+	{
+		glDeleteVertexArrays(m_count, &m_id);
+		this->m_isFree = true;
+	}
 }
 
 const unsigned int VertexArrayObject::getID() const
 {
 	return this->m_id;
 }
+
+bool VertexArrayObject::isValid() const
+{
+	return (m_isFree == false) && (m_id != 0);
+}
+

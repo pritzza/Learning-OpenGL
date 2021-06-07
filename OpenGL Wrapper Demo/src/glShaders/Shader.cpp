@@ -3,6 +3,7 @@
 #include "ShaderStatusChecker.h"
 
 #include <glad 3.3/glad.h>
+#include <iostream>
 
 Shader::Shader(const std::string& name, const unsigned int type, const std::string& source)
 	:

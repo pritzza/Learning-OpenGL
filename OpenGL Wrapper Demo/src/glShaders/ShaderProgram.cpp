@@ -25,14 +25,8 @@ void ShaderProgram::link() const
 {
 	glLinkProgram(this->m_id);
 
-
 	ShaderStatusChecker statusChecker(GL_LINK_STATUS);
 	statusChecker.checkStatus(this->m_id, this->m_name);
-}
-
-void ShaderProgram::use() const
-{
-	glUseProgram(this->m_id);
 }
 
 const unsigned int ShaderProgram::getID() const
