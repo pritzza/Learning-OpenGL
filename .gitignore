@@ -18,4 +18,12 @@ OpenGL Demo/x64
 *.cmake
 *.filters
 *.vcxproj
-OpenGL Demo/.vs/OpenGL Demo/v16/.suo
+*.suo
+OpenGL Demo 2/Debug
+OpenGL Demo 2/Release
+OpenGL Demo 2/Dependencies
+OpenGL Demo 2/res
+OpenGL Demo 2/x64
+*.db-shm
+*.db-wal
+*.opendb
