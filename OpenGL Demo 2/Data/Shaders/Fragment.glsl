@@ -2,9 +2,11 @@
 
 in vec3 passFragPosition;
 
-out vec4 FragColor;
+out vec4 fragColor;
+
+uniform float colorOffset;
 
 void main()
 {
-    FragColor = vec4(passFragPosition.xyz + 0.5, 1.0); 
+    fragColor = vec4(passFragPosition.xyz, 1.0); 
 }

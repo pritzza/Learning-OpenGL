@@ -89,3 +89,8 @@ const bool ShaderProgram::checkStatus(const uint32_t checkingStatus, const uint3
 
 	return true;
 }
+
+const uint32_t ShaderProgram::getHandle() const
+{
+	return this->handle;
+}

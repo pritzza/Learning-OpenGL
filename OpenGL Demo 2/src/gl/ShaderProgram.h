@@ -21,4 +21,6 @@ public:
 	void makeProgram(const std::string& vertexFile, const std::string& fragmentFile) const;
 
 	void use() const;
+
+	const uint32_t getHandle() const;
 };

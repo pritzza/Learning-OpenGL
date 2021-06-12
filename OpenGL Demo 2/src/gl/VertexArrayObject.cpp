@@ -58,13 +58,14 @@ void VertexArrayObject::bufferVertexData(const std::vector<float>& vertices) con
 
 	constexpr uint32_t VERTEX_ELEMENTS{ 3 };
 
+	// glVertexAttribPointer(index, size, type, normalized, stride, GLvoid* pointer);
 	glVertexAttribPointer(0, VERTEX_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_ELEMENTS * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 }
 
 void VertexArrayObject::bufferIndicesData(const std::vector<uint32_t>& indices)
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
 
 	this->numIndices = indices.size();
@@ -74,7 +75,7 @@ void VertexArrayObject::draw()
 {
 	this->bind();
 
-	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, this->numIndices, GL_UNSIGNED_INT, NULL);
 
 	this->unbind();
 }
