@@ -8,7 +8,7 @@ uniform float posOffset;
 
 void main()
 {
-	gl_Position = vec4(aPos.xyz, 1.0 + posOffset);
+	gl_Position = vec4(aPos.x, aPos.y - 2, aPos.z, posOffset);
 
 	passFragPosition = vec3(aPos);
 }

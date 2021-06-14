@@ -15,6 +15,21 @@ ShaderProgram::ShaderProgram()
 ShaderProgram::~ShaderProgram()
 {
 	glDeleteProgram(this->handle);
+
+	uniforms.clear();
+}
+
+ShaderProgram& ShaderProgram::operator=(ShaderProgram&& o)
+{
+	std::swap(handle, o.handle);
+
+	return *this;
+}
+
+ShaderProgram::ShaderProgram(ShaderProgram&& o) noexcept
+	:
+	handle{ o.handle }
+{
 }
 
 const uint32_t ShaderProgram::makeShader(const uint32_t shaderType, const std::string& fileName) const
@@ -38,12 +53,12 @@ const uint32_t ShaderProgram::makeShader(const uint32_t shaderType, const std::s
 
 void ShaderProgram::makeProgram(const std::string& vertexFile, const std::string& fragmentFile) const
 {
-	const uint32_t vertHandle{ this->makeShader(GL_VERTEX_SHADER,	vertexFile)   };
+	const uint32_t vertHandle{ this->makeShader(GL_VERTEX_SHADER,	vertexFile) };
 	const uint32_t fragHandle{ this->makeShader(GL_FRAGMENT_SHADER, fragmentFile) };
 
 	glAttachShader(this->handle, vertHandle);
 	glAttachShader(this->handle, fragHandle);
-	glLinkProgram (this->handle);
+	glLinkProgram(this->handle);
 
 	checkStatus(GL_LINK_STATUS, this->handle, "shader program");
 
@@ -57,6 +72,57 @@ void ShaderProgram::use() const
 	glUseProgram(this->handle);
 }
 
+void ShaderProgram::registerUniform(const UniformName uniformName)
+{
+	std::string name;
+	switch (uniformName)
+	{
+	case UniformName::MainFragmentColorOffset:  name = "colorOffset"; break;
+	case UniformName::MainVertexPosOffset:		name = "posOffset";   break;
+	default:	std::cout << "Error: case for UniformName: " << static_cast<int>(uniformName) << " does not exist.\n";
+	}
+
+	Uniform uniform(glGetUniformLocation(this->handle, name.c_str()));
+
+	if (uniform.location == -1)	// if couldnt find
+		std::cout << "Error: Couldn't find \"" << name << "\" uniform.\n";
+	else
+		uniforms.emplace(uniformName, uniform);
+}
+
+const void ShaderProgram::setUniform(const UniformName uniform, float vector[3]) const
+{
+	if (isValidUniform(uniform))
+		glUniform3fv(getUniform(uniform), 1, vector);
+}
+const void ShaderProgram::setUniform(const UniformName uniform, int vector[3]) const
+{
+	if (isValidUniform(uniform))
+		glUniform3iv(getUniform(uniform), 1, vector);
+}
+/*
+const void ShaderProgram::setUniform(const UniformName uniform, float matrix[4]) const
+{
+	if (isValidUniform(uniform))
+		glUniformMatrix4fv(uniform.location, 1, false, matrix);
+}
+*/
+const void ShaderProgram::setUniform(const UniformName uniform, int value) const
+{
+	if (isValidUniform(uniform))
+		glUniform1i(getUniform(uniform), value);
+}
+const void ShaderProgram::setUniform(const UniformName uniform, unsigned  value) const
+{
+	if (isValidUniform(uniform))
+		glUniform1ui(getUniform(uniform), value);
+}
+const void ShaderProgram::setUniform(const UniformName uniform, float value) const
+{
+	if (isValidUniform(uniform))
+		glUniform1f(getUniform(uniform), value);
+}
+
 const bool ShaderProgram::checkStatus(const uint32_t checkingStatus, const uint32_t handle, const std::string& name) const
 {
 	int success;
@@ -64,11 +130,11 @@ const bool ShaderProgram::checkStatus(const uint32_t checkingStatus, const uint3
 
 	switch (checkingStatus)
 	{
-	case GL_COMPILE_STATUS:	
-		glGetShaderiv(handle, GL_COMPILE_STATUS, &success);	
-		checkingStatusName = "compile";		
+	case GL_COMPILE_STATUS:
+		glGetShaderiv(handle, GL_COMPILE_STATUS, &success);
+		checkingStatusName = "compile";
 		break;
-	case GL_LINK_STATUS:	
+	case GL_LINK_STATUS:
 		glGetShaderiv(handle, GL_LINK_STATUS, &success);
 		checkingStatusName = "link";
 		break;
@@ -90,7 +156,35 @@ const bool ShaderProgram::checkStatus(const uint32_t checkingStatus, const uint3
 	return true;
 }
 
+const bool ShaderProgram::isValidUniform(const UniformName uniform) const
+{
+	bool isValid{ true };
+
+	if (uniforms.find(uniform) == uniforms.end())
+	{
+		isValid = false;
+		std::cout << "Error: Uniform " << static_cast<int>(uniform) << " not yet registered.\n";
+	}
+	if (uniforms.at(uniform).location == Uniform::INVALID)	// pretty sure this case is impossible, or would have atleast already been printed
+	{
+		isValid = false;
+		std::cout << "Error: Uniform " << static_cast<int>(uniform) << " has invalid location.\n";
+	}
+	if (!this->isInUse)
+	{
+		isValid = false;
+		std::cout << "Error: Shader must be in use to modify uniform.\n";
+	}
+
+	return isValid;
+}
+
 const uint32_t ShaderProgram::getHandle() const
 {
 	return this->handle;
+}
+
+const int ShaderProgram::getUniform(const UniformName uniform) const
+{
+	return this->uniforms.at(uniform).location;
 }

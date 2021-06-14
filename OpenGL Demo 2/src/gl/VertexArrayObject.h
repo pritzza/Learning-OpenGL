@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-class VertexArrayObject
+class VertexArrayObject final
 {
 private:
 	uint32_t vao;	// VertexArrayObject

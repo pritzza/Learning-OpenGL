@@ -10,7 +10,7 @@ Application::Application(const std::string& windowName, const sf::VideoMode& vid
 	:
 	contextSettings{ contextSettings },
 	window{ videoMode, windowName, sfWindowStyle, contextSettings },
-	fps{ fps }
+	frameRate{ fps }
 {
 	this->init();
 }
@@ -38,6 +38,9 @@ void Application::init()
 	shaders.emplace_back();
 	shaders[0].makeProgram("Data/Shaders/Vertex.glsl", "Data/Shaders/Fragment.glsl");
 	shaders[0].use();
+
+	shaders[0].registerUniform(UniformName::MainFragmentColorOffset);
+	shaders[0].registerUniform(UniformName::MainVertexPosOffset);
 
 	//const std::vector<float> vertices = {
 	//	 0.5f,  0.5f, 0.0f,  // top right
@@ -70,44 +73,44 @@ void Application::terminate()
 	this->isRunning = false;
 }
 
+void Application::handleInput()
+{
+}
+
+void Application::update()
+{
+	sf::Event event;
+
+	while (this->window.pollEvent(event))
+		pollWindowEvents(event);
+
+	// non boilerplate:
+
+	uniformColorOffset = sin(delta.getTotal());
+	uniformPosOffset = (cos(delta.getTotal()) * 3.f) + 3.5f;
+
+	shaders[0].setUniform(UniformName::MainFragmentColorOffset, uniformColorOffset);
+	shaders[0].setUniform(UniformName::MainVertexPosOffset, uniformPosOffset);
+}
+
+void Application::render()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	vaos[0].draw();
+
+	this->window.display();
+}
+
 void Application::applicationLoop()
 {
-	double dt{};	// delta time; time between each frame
-	double pt{};	// processing time; the time it takes to execute one gameloop excluding the wait/sleep
-
 	while (isRunning)
 	{
-		frameTimer.restart();
-		// dt boilerplate
-
-
-		sf::Event event;
-
-		while (this->window.pollEvent(event))
-			pollWindowEvents(event);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		int fragColorOffsetUniformHandle{ glGetUniformLocation(this->shaders[0].getHandle(), "colorOffset")};
-		int vertPosOffsetUniformHandle{ glGetUniformLocation(this->shaders[0].getHandle(), "posOffset") };
-
-		fragColorOffsetUniform += 0; //dt/2.f;
-
-		const float posOffset = 3.f;
-
-		glUniform1f(fragColorOffsetUniformHandle, fragColorOffsetUniform);
-		glUniform1f(vertPosOffsetUniformHandle, posOffset);
-
-		vaos[0].draw();
-
-		this->window.display();
-
-
-		// dt boilerplate
-		pt = frameTimer.getElapsedTime().asSeconds();	// processing time before wait
-		sf::sleep(sf::seconds(1.f / this->fps - pt));
-
-		dt = frameTimer.getElapsedTime().asSeconds();	// total time (use this for dt calculations)
+		this->handleInput();
+		this->update();
+		this->render();
+	
+		this->delta.wait(this->frameRate);
 	}
 }
 

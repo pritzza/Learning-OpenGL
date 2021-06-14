@@ -20,9 +20,7 @@ const std::string FileLoader::getContents(const std::string& fileName) const
 {
 	std::ifstream file{ getFile(fileName) };
 
-	std::string contents{ std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>() };
-
-	return contents;
+	return { std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>() };
 }
 
 const std::vector<float> FileLoader::getVertices(const std::string& fileName) const

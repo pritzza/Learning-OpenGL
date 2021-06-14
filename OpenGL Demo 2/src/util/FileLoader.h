@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class FileLoader
+class FileLoader final
 {
 private:
 	std::ifstream getFile(const std::string& fileName) const;
