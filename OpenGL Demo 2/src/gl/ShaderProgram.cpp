@@ -165,11 +165,6 @@ const bool ShaderProgram::isValidUniform(const UniformName uniform) const
 		isValid = false;
 		std::cout << "Error: Uniform " << static_cast<int>(uniform) << " not yet registered.\n";
 	}
-	if (uniforms.at(uniform).location == Uniform::INVALID)	// pretty sure this case is impossible, or would have atleast already been printed
-	{
-		isValid = false;
-		std::cout << "Error: Uniform " << static_cast<int>(uniform) << " has invalid location.\n";
-	}
 	if (!this->isInUse)
 	{
 		isValid = false;

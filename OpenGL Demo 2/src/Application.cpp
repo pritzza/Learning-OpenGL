@@ -4,6 +4,8 @@
 
 #include "util/FileLoader.h"
 
+#include "gl/Vertex.h"
+
 #include <iostream>
 
 Application::Application(const std::string& windowName, const sf::VideoMode& videoMode, const uint8_t fps, const uint8_t sfWindowStyle, const sf::ContextSettings& contextSettings)
@@ -48,24 +50,33 @@ void Application::init()
 	//	-0.5f, -0.5f, 0.0f,  // bottom left
 	//	-0.5f,  0.5f, 0.0f   // top left 
 	//};
-	//
-	//const std::vector<uint32_t> indices = {  // note that we start from 0!
-	//	0, 1, 3,  // first Triangle
-	//	1, 2, 3   // second Triangle
-	//};
+	
+	const std::vector<ColoredVertex> vertices = {
+	//	x, y, z, r, g, b, a
+		{  0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f },  // top right
+		{  0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f },  // bottom right
+		{ -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f },  // bottom left
+		{ -0.5f,  0.5f, 0.0f,  0.0f, 0.5f, 0.5f, 1.0f }   // top left 
+	};
 
-	FileLoader fl;
-	const std::vector<float> vertices = fl.getVertices("Data/Objs/Teapot.obj");
-	const std::vector<uint32_t> indices = fl.getIndices("Data/Objs/Teapot.obj");
+	const std::vector<uint32_t> indices = {  // note that we start from 0!
+		0, 1, 3,  // first triangle
+		1, 2, 3   // second triangle
+	};
 
-	std::cout << vertices.size() << ", " << indices.size() << '\n';
+	//FileLoader fl;
+	//const std::vector<float> vertices = fl.getVertices("Data/Objs/Teapot.obj");
+	//const std::vector<uint32_t> indices = fl.getIndices("Data/Objs/Teapot.obj");
+
+	std::cout << vertices.size() << " vertices and " << indices.size() << " indices\n";
+
 
 	vaos.emplace_back();
 
-	vaos[0].makeVAO(vertices, indices);
+	vaos[0].makeVAO<ColoredVertex>(vertices, indices);
 
 	// draw mesh in wire frame
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Application::terminate()
@@ -80,14 +91,14 @@ void Application::handleInput()
 void Application::update()
 {
 	sf::Event event;
-
+ 
 	while (this->window.pollEvent(event))
 		pollWindowEvents(event);
 
 	// non boilerplate:
 
-	uniformColorOffset = sin(delta.getTotal());
-	uniformPosOffset = (cos(delta.getTotal()) * 3.f) + 3.5f;
+	uniformColorOffset = (sin(delta.getTotal() / 2.f) + 0.5f);
+	uniformPosOffset = (cos(delta.getTotal()) * 2.f) + 3.f;
 
 	shaders[0].setUniform(UniformName::MainFragmentColorOffset, uniformColorOffset);
 	shaders[0].setUniform(UniformName::MainVertexPosOffset, uniformPosOffset);

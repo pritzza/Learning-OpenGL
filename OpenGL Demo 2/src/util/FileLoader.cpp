@@ -41,6 +41,7 @@ const std::vector<float> FileLoader::getVertices(const std::string& fileName) co
 			const std::string x{ line.substr(2, line.find_first_of(' ', 2) - 2) };	// get num between "v " and second space
 			const std::string y{ line.substr(2 + x.length() + 1, x.length()) };		// get num between "v " + x.len + " " and the third space
 			const std::string z{ line.substr(2 + (x.length() * 2) + 1) };			// get num between "v " + x.len + " " + y.len + " " to the end
+			// this needs a refactor to support colors and texture coords and whatnot
 
 			vertices.push_back(std::stof(x));
 			vertices.push_back(std::stof(y));

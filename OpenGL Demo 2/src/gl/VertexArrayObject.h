@@ -3,6 +3,11 @@
 #include <cstdint>
 #include <vector>
 
+struct BasicVertex;
+struct ColoredVertex;
+struct TexturedVertex;
+struct ColoredTexturedVertex;
+
 class VertexArrayObject final
 {
 private:
@@ -14,6 +19,11 @@ private:
 
 private:
 	void bufferVertexData(const std::vector<float>& vertices) const;
+	void bufferVertexData(const std::vector<BasicVertex>& vertices) const;
+	void bufferVertexData(const std::vector<ColoredVertex>& vertices) const;
+	void bufferVertexData(const std::vector<TexturedVertex>& vertices) const;
+	void bufferVertexData(const std::vector<ColoredTexturedVertex>& vertices) const;
+
 	void bufferIndicesData(const std::vector<uint32_t>& indices);
 
 public:
@@ -25,7 +35,9 @@ public:
 
 	VertexArrayObject(VertexArrayObject&&) noexcept;
 
-	void makeVAO(const std::vector<float>& vertices, const std::vector<uint32_t>& indices);
+	template <typename VertexType>
+	void makeVAO(const std::vector<VertexType>& vertices, const std::vector<uint32_t>& indices);
+
 	//void makeVBO(const std::string& fileName);	// load model from file
 
 	void draw();
@@ -33,3 +45,14 @@ public:
 	void bind() const;
 	void unbind() const;
 };
+
+template <typename VertexType>
+void VertexArrayObject::makeVAO(const std::vector<VertexType>& vertices, const std::vector<uint32_t>& indices)
+{
+	this->bind();
+
+	bufferVertexData(vertices);
+	bufferIndicesData(indices);
+
+	this->unbind();
+}

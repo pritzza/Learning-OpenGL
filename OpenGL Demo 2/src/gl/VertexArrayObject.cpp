@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+#include "Vertex.h"
+
 #include <iostream>
 
 VertexArrayObject::VertexArrayObject()
@@ -30,25 +32,15 @@ VertexArrayObject& VertexArrayObject::operator=(VertexArrayObject&& o)
 
 VertexArrayObject::VertexArrayObject(VertexArrayObject&& o) noexcept
 	:
-	vao{o.vao},
-	vbo{o.vbo},
-	ibo{o.ibo},
-	numIndices{o.numIndices}
+	vao{ o.vao },
+	vbo{ o.vbo },
+	ibo{ o.ibo },
+	numIndices{ o.numIndices }
 {
 	o.vao = 0;
 	o.vbo = 0;
 	o.ibo = 0;
 	o.numIndices = 0;
-}
-
-void VertexArrayObject::makeVAO(const std::vector<float>& vertices, const std::vector<uint32_t>& indices)
-{
-	this->bind();
-
-	bufferVertexData(vertices);
-	bufferIndicesData(indices);
-
-	this->unbind();
 }
 
 void VertexArrayObject::bufferVertexData(const std::vector<float>& vertices) const
@@ -59,8 +51,61 @@ void VertexArrayObject::bufferVertexData(const std::vector<float>& vertices) con
 	constexpr uint32_t VERTEX_ELEMENTS{ 3 };
 
 	// glVertexAttribPointer(index, size, type, normalized, stride, GLvoid* pointer);
-	glVertexAttribPointer(0, VERTEX_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_ELEMENTS * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(BasicVertex::POS_ATTRIBUTE, VERTEX_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_ELEMENTS * sizeof(float), (void*)0);
+	
+	glEnableVertexAttribArray(BasicVertex::POS_ATTRIBUTE);
+}
+
+void VertexArrayObject::bufferVertexData(const std::vector<BasicVertex>& vertices) const
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(BasicVertex), vertices.data(), GL_STATIC_DRAW);
+
+	// glVertexAttribPointer(index, size, type, normalized, stride, GLvoid* pointer);
+	glVertexAttribPointer(BasicVertex::POS_ATTRIBUTE, BasicVertex::NUM_COORD_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(BasicVertex), (void*)0);
+	
+	glEnableVertexAttribArray(BasicVertex::POS_ATTRIBUTE);
+}
+
+void VertexArrayObject::bufferVertexData(const std::vector<ColoredVertex>& vertices) const
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ColoredVertex), vertices.data(), GL_STATIC_DRAW);
+
+	// glVertexAttribPointer(index, size, type, normalized, stride, GLvoid* pointer);
+	glVertexAttribPointer(BasicVertex::POS_ATTRIBUTE, BasicVertex::NUM_COORD_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), (void*)0);
+	glVertexAttribPointer(ColoredVertex::COLOR_ATTRIBUTE, ColoredVertex::NUM_COLOR_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), (void*) sizeof(BasicVertex));
+	
+	glEnableVertexAttribArray(BasicVertex::POS_ATTRIBUTE);
+	glEnableVertexAttribArray(ColoredVertex::COLOR_ATTRIBUTE);
+}
+
+void VertexArrayObject::bufferVertexData(const std::vector<TexturedVertex>& vertices) const
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(TexturedVertex), vertices.data(), GL_STATIC_DRAW);
+
+	// glVertexAttribPointer(index, size, type, normalized, stride, GLvoid* pointer);
+	glVertexAttribPointer(BasicVertex::POS_ATTRIBUTE, BasicVertex::NUM_COORD_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+	glVertexAttribPointer(TexturedVertex::TEXTURE_ATTRIBUTE, TexturedVertex::NUM_TEXTURE_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(BasicVertex));
+	
+	glEnableVertexAttribArray(BasicVertex::POS_ATTRIBUTE);
+	glEnableVertexAttribArray(TexturedVertex::TEXTURE_ATTRIBUTE);
+}
+
+void VertexArrayObject::bufferVertexData(const std::vector<ColoredTexturedVertex>& vertices) const
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ColoredTexturedVertex), vertices.data(), GL_STATIC_DRAW);
+
+	// glVertexAttribPointer(index, size, type, normalized, stride, GLvoid* pointer);
+	glVertexAttribPointer(BasicVertex::POS_ATTRIBUTE, BasicVertex::NUM_COORD_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredTexturedVertex), (void*)0);
+	glVertexAttribPointer(ColoredVertex::COLOR_ATTRIBUTE, ColoredVertex::NUM_COLOR_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredTexturedVertex),   (void*) (sizeof(BasicVertex)                         ));
+	glVertexAttribPointer(TexturedVertex::TEXTURE_ATTRIBUTE, TexturedVertex::NUM_TEXTURE_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredTexturedVertex), (void*) (sizeof(BasicVertex) + sizeof(TexturedVertex)));
+
+	glEnableVertexAttribArray(BasicVertex::POS_ATTRIBUTE);
+	glEnableVertexAttribArray(ColoredVertex::COLOR_ATTRIBUTE);
+	glEnableVertexAttribArray(TexturedVertex::TEXTURE_ATTRIBUTE);
 }
 
 void VertexArrayObject::bufferIndicesData(const std::vector<uint32_t>& indices)
