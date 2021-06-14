@@ -6,6 +6,8 @@
 
 #include "gl/Vertex.h"
 
+#include <SFML/Graphics/Image.hpp>
+
 #include <iostream>
 
 Application::Application(const std::string& windowName, const sf::VideoMode& videoMode, const uint8_t fps, const uint8_t sfWindowStyle, const sf::ContextSettings& contextSettings)
@@ -51,18 +53,21 @@ void Application::init()
 	//	-0.5f,  0.5f, 0.0f   // top left 
 	//};
 	
-	const std::vector<ColoredVertex> vertices = {
-	//	x, y, z, r, g, b, a
-		{  0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f },  // top right
-		{  0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f },  // bottom right
-		{ -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f },  // bottom left
-		{ -0.5f,  0.5f, 0.0f,  0.0f, 0.5f, 0.5f, 1.0f }   // top left 
+	const std::vector<ColoredTexturedVertex> vertices = {
+	//	x, y, z, r, g, b, a, s, t
+		{  0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f,  1.0f, 1.0f },  // top right
+		{  0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f,  1.0f, 0.0f },  // bottom right
+		{ -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f,  0.0f, 0.0f },  // bottom left
+		{ -0.5f,  0.5f, 0.0f,  0.0f, 0.5f, 0.5f, 1.0f,  0.0f, 1.0f }   // top left 
 	};
 
 	const std::vector<uint32_t> indices = {  // note that we start from 0!
 		0, 1, 3,  // first triangle
 		1, 2, 3   // second triangle
 	};
+
+	sf::Image texture;
+	texture.loadFromFile("Data/Textures/pikmin wallpaper.jpg");
 
 	//FileLoader fl;
 	//const std::vector<float> vertices = fl.getVertices("Data/Objs/Teapot.obj");
@@ -73,7 +78,7 @@ void Application::init()
 
 	vaos.emplace_back();
 
-	vaos[0].makeVAO<ColoredVertex>(vertices, indices);
+	vaos[0].makeVAO<ColoredTexturedVertex>(vertices, indices, texture);
 
 	// draw mesh in wire frame
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -100,7 +105,7 @@ void Application::update()
 	uniformColorOffset = (sin(delta.getTotal() / 2.f) + 0.5f);
 	uniformPosOffset = (cos(delta.getTotal()) * 2.f) + 3.f;
 
-	shaders[0].setUniform(UniformName::MainFragmentColorOffset, uniformColorOffset);
+	//shaders[0].setUniform(UniformName::MainFragmentColorOffset, uniformColorOffset);
 	shaders[0].setUniform(UniformName::MainVertexPosOffset, uniformPosOffset);
 }
 

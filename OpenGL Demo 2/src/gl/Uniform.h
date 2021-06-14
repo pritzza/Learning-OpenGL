@@ -6,6 +6,7 @@ enum class UniformName
 	// ideally each uniform should include the name of its corresponding program, shader and identifier
 
 	MainFragmentColorOffset,
+
 	MainVertexPosOffset
 };
 

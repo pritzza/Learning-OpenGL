@@ -79,6 +79,7 @@ void ShaderProgram::registerUniform(const UniformName uniformName)
 	{
 	case UniformName::MainFragmentColorOffset:  name = "colorOffset"; break;
 	case UniformName::MainVertexPosOffset:		name = "posOffset";   break;
+
 	default:	std::cout << "Error: case for UniformName: " << static_cast<int>(uniformName) << " does not exist.\n";
 	}
 

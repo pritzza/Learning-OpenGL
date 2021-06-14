@@ -4,6 +4,8 @@
 
 #include "Vertex.h"
 
+#include <SFML/Graphics/Image.hpp>
+
 #include <iostream>
 
 VertexArrayObject::VertexArrayObject()
@@ -11,6 +13,7 @@ VertexArrayObject::VertexArrayObject()
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ibo);
+	glGenTextures(1, &texture);
 }
 
 VertexArrayObject::~VertexArrayObject()
@@ -18,6 +21,7 @@ VertexArrayObject::~VertexArrayObject()
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &ibo);
+	glDeleteTextures(1, &texture);
 }
 
 VertexArrayObject& VertexArrayObject::operator=(VertexArrayObject&& o)
@@ -26,6 +30,7 @@ VertexArrayObject& VertexArrayObject::operator=(VertexArrayObject&& o)
 	std::swap(vbo, o.vbo);
 	std::swap(ibo, o.ibo);
 	std::swap(numIndices, o.numIndices);
+	std::swap(texture, o.texture);
 
 	return *this;
 }
@@ -35,12 +40,14 @@ VertexArrayObject::VertexArrayObject(VertexArrayObject&& o) noexcept
 	vao{ o.vao },
 	vbo{ o.vbo },
 	ibo{ o.ibo },
-	numIndices{ o.numIndices }
+	numIndices{ o.numIndices },
+	texture{ o.texture }
 {
 	o.vao = 0;
 	o.vbo = 0;
 	o.ibo = 0;
 	o.numIndices = 0;
+	o.texture = 0;
 }
 
 void VertexArrayObject::bufferVertexData(const std::vector<float>& vertices) const
@@ -100,8 +107,8 @@ void VertexArrayObject::bufferVertexData(const std::vector<ColoredTexturedVertex
 
 	// glVertexAttribPointer(index, size, type, normalized, stride, GLvoid* pointer);
 	glVertexAttribPointer(BasicVertex::POS_ATTRIBUTE, BasicVertex::NUM_COORD_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredTexturedVertex), (void*)0);
-	glVertexAttribPointer(ColoredVertex::COLOR_ATTRIBUTE, ColoredVertex::NUM_COLOR_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredTexturedVertex),   (void*) (sizeof(BasicVertex)                         ));
-	glVertexAttribPointer(TexturedVertex::TEXTURE_ATTRIBUTE, TexturedVertex::NUM_TEXTURE_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredTexturedVertex), (void*) (sizeof(BasicVertex) + sizeof(TexturedVertex)));
+	glVertexAttribPointer(ColoredVertex::COLOR_ATTRIBUTE, ColoredVertex::NUM_COLOR_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredTexturedVertex),       (void*) (sizeof(BasicVertex)));
+	glVertexAttribPointer(TexturedVertex::TEXTURE_ATTRIBUTE, TexturedVertex::NUM_TEXTURE_COMPONENTS, GL_FLOAT, GL_FALSE, sizeof(ColoredTexturedVertex), (void*) (sizeof(ColoredVertex)));
 
 	glEnableVertexAttribArray(BasicVertex::POS_ATTRIBUTE);
 	glEnableVertexAttribArray(ColoredVertex::COLOR_ATTRIBUTE);
@@ -114,6 +121,21 @@ void VertexArrayObject::bufferIndicesData(const std::vector<uint32_t>& indices)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
 
 	this->numIndices = indices.size();
+}
+
+void VertexArrayObject::bufferTextureData(const sf::Image& texture)
+{
+	glBindTexture(GL_TEXTURE_2D, this->texture);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//glTexImage2D(target, level, internalFormat, width, height, border, format, type, data)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.getSize().x, texture.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.getPixelsPtr());
+
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void VertexArrayObject::draw()
