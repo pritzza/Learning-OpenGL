@@ -2,14 +2,28 @@
 
 #include <SFML/System/Sleep.hpp>
 
-void DeltaTime::wait(const uint8_t frameRate)
+void DeltaTime::start()
 {
 	this->clock.restart();
+}
 
-	this->processingTime = this->clock.getElapsedTime().asSeconds();	// processing time before wait
-	sf::sleep(sf::seconds(1.f / frameRate - this->processingTime));
+void DeltaTime::stop()
+{
+	this->processingTime = clock.getElapsedTime().asSeconds();
+	this->totalProcessingTime += processingTime;
+}
 
-	this->deltaTime = this->clock.getElapsedTime().asSeconds();	// total time (use this for dt calculations)
+void DeltaTime::wait(const int targetFrameRate)
+{
+	this->frame++;
+
+	stop();
+
+	const double sleepTime{ (1.f / targetFrameRate) - processingTime };
+
+	sf::sleep(sf::seconds(sleepTime));
+
+	this->deltaTime = clock.getElapsedTime().asSeconds();	// total time (use this for dt calculations)
 
 	this->totalTime += deltaTime;
 }
