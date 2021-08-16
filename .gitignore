@@ -22,8 +22,11 @@ OpenGL Demo/x64
 OpenGL Demo 2/Debug
 OpenGL Demo 2/Release
 OpenGL Demo 2/Dependencies
-OpenGL Demo 2/res
 OpenGL Demo 2/x64
 *.db-shm
 *.db-wal
 *.opendb
+Another OpenGL Attempt/Debug
+Another OpenGL Attempt/Release
+Another OpenGL Attempt/Dependencies
+Another OpenGL Attempt/x64
