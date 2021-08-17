@@ -43,6 +43,23 @@ void ShaderProgram::init(const std::string& vertexShader, const std::string& fra
 	glDeleteShader(fragmentID);
 }
 
+void ShaderProgram::setUniform(const std::string& uniformName, const GLfloat x, const GLfloat y, const GLfloat z)
+{
+	// if we dont have a handle to the uniform, get it
+	if (uniforms.find(uniformName) == uniforms.end())
+		uniforms.insert({ uniformName, glGetUniformLocation(this->program, uniformName.c_str()) });
+
+	glUniform3f(uniforms.at(uniformName), x, y, z);
+}
+
+void ShaderProgram::setUniform(const std::string& uniformName, const GLuint textureID)
+{
+	if (uniforms.find(uniformName) == uniforms.end())
+		uniforms.insert({ uniformName, glGetUniformLocation(this->program, uniformName.c_str()) });
+
+	glUniform1i(uniforms.at(uniformName), textureID);
+}
+
 const bool ShaderProgram::checkStatus(const GLuint checkingStatus, const GLuint handle, const std::string& name) const
 {
 	GLint success;

@@ -1,11 +1,15 @@
 #include "Model.h"
 
-Model::Model(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData)
+#include <SFML/Graphics/Image.hpp>
+
+#include <iostream>
+
+Model::Model(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData, const std::string& textureName)
 {
-	this->init(vertexData, indexData);
+	this->init(vertexData, indexData, textureName);
 }
 
-void Model::init(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData)
+void Model::init(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData, const std::string& textureName)
 {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -23,14 +27,45 @@ void Model::init(const std::vector<GLfloat>& vertexData, const std::vector<GLuin
 	this->vertexCount = indexData.size();
 
 	// number of GLfloats per vertex
-	static constexpr int VERTEX_ELEMENTS{ 3 };
+	static constexpr int VERTEX_ELEMENTS{ 5 };
+	static constexpr int VERTEX_POS_ELEMENTS{ 3 };
+	static constexpr int VERTEX_UV_ELEMENTS{ 2 };
 
 	// vertex positional data starts on the first byte of the vertexBuffer
-	constexpr void* VERTEX_POS_DATA_START{ 0 };
+	constexpr int VERTEX_POS_DATA_START{ 0 * sizeof(GLfloat) };
 
-	glVertexAttribPointer(0, VERTEX_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_ELEMENTS * sizeof(GLfloat), VERTEX_POS_DATA_START);
+	glVertexAttribPointer(VERTEX_POS_ATTRIB, VERTEX_POS_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_ELEMENTS * sizeof(GLfloat), (void*)VERTEX_POS_DATA_START);
 
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(VERTEX_POS_ATTRIB);
+
+	// texture junk
+	sf::Image textureData;
+	
+	if (!textureData.loadFromFile(textureName))
+		textureData.create(1, 1);
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexImage2D(
+		GL_TEXTURE_2D, 
+		0, 
+		GL_RGBA, 
+		textureData.getSize().x, 
+		textureData.getSize().y, 
+		0, 
+		GL_RGBA, 
+		GL_UNSIGNED_BYTE, 
+		textureData.getPixelsPtr()
+	);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	constexpr int VERTEX_UV_DATA_START{ 3 * sizeof(GLfloat) };
+
+	glVertexAttribPointer(VERTEX_UV_ATTRIB, VERTEX_UV_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_ELEMENTS * sizeof(GLfloat), (void*)VERTEX_UV_DATA_START);
+
+	glEnableVertexAttribArray(VERTEX_UV_ATTRIB);
 }
 
 void Model::bufferData() const

@@ -1,20 +1,17 @@
 #version 330 core
 
 layout (location = 0) in vec3 aPos;
-//layout (location = 1) in vec4 aColor;
-//layout (location = 2) in vec2 aTextureCoords;
+layout (location = 1) in vec2 UVs;
 
 out vec3 pos;
-out vec4 color;
-out vec2 textureCoords;
+out vec2 uvCoords;
 
-//uniform float posOffset;
+uniform vec3 posOffset;
 
 void main()
 {
-	gl_Position = vec4(aPos, 1.0);
+	gl_Position = vec4(aPos + (posOffset/2), 1.0) * vec4(1.0, -1.0, 1.0, 1.0);	// last bit to flip upsidedown image
 
 	pos = aPos;
-	//color = aColor;
-	//textureCoords = aTextureCoords;
+	uvCoords = UVs;
 }

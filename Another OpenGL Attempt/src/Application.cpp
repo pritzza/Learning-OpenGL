@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string_view>
 
+#include <math.h>
+
 Application::Application(const std::string& windowName, const sf::VideoMode& videoMode, const unsigned int sfWindowStyle, const sf::ContextSettings& contextSettings)
 	:
 	contextSettings{ contextSettings },
@@ -24,11 +26,13 @@ void Application::init()
 	this->shader.init("Data/Shaders/Vertex.glsl", "Data/Shaders/Fragment.glsl");
 	this->shader.use();
 
+	this->shader.setUniform("text", 0);
+
 	const std::vector<GLfloat> vertices = {
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left 
+		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,  // top right
+		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // bottom left
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f   // top left 
 	};
 
 	const std::vector<GLuint> indices = {  // note that we start from 0!
@@ -36,7 +40,7 @@ void Application::init()
 		1, 2, 3   // second Triangle
 	};
 
-	model.init(vertices, indices);
+	model.init(vertices, indices, "Data/Textures/guy.png");
 }
 
 void Application::terminate()
@@ -48,16 +52,25 @@ void Application::applicationLoop()
 {
 	while (this->isRunning)
 	{
+		dt.start();
+
 		sf::Event event;
 
 		while (this->window.pollEvent(event))
 			pollWindowEvents(event);
 
+		// update
+
+		this->shader.setUniform("posOffset", sin(dt.getTotalTime()), cos(dt.getTotalTime()), 0.f);
+
+		// render
 		renderer.clear();
 
 		renderer.render(model);
 
 		this->window.display();
+
+		dt.wait(60);
 	}
 }
 

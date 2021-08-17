@@ -2,6 +2,7 @@
 
 #include "glad/glad.h"
 
+#include <string>
 #include <vector>
 
 // i want model to be more of a struct who's data is manipulated by others, rather than itself performing operations
@@ -13,7 +14,7 @@ private:
 	static constexpr int VERTEX_NORMAL_ATTRIB{ 2 };
 
 private:
-	GLuint vao, vbo, ibo;
+	GLuint vao, vbo, ibo, texture;
 
 	GLuint vertexCount;
 
@@ -23,10 +24,11 @@ private:
 public:
 	Model() = default;
 		
-	Model(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData);
+	Model(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData, const std::string& textureName);
 
-	void init(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData);
+	void init(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData, const std::string& textureName);
 
 	const GLuint getVertexCount() const { return this->vertexCount; }
+	const GLuint getTexture() const		{ return this->texture;     }
 	const GLuint getVAO() const			{ return this->vao;         }
 };

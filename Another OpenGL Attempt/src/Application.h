@@ -6,6 +6,8 @@
 #include "gl/ShaderProgram.h"
 #include "gl/Model.h"
 
+#include "util/DeltaTime.h"
+
 class Application
 {
 private:
@@ -13,6 +15,8 @@ private:
 	sf::Window window;
 
 	bool isRunning{ true };
+
+	DeltaTime dt;
 
 	Renderer renderer;
 
