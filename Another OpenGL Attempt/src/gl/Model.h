@@ -9,6 +9,10 @@
 struct Model
 {
 private:
+	static constexpr int VERTEX_ELEMENTS{ 5 };
+	static constexpr int VERTEX_POS_ELEMENTS{ 3 };
+	static constexpr int VERTEX_UV_ELEMENTS{ 2 };
+
 	static constexpr int VERTEX_POS_ATTRIB{ 0 };
 	static constexpr int VERTEX_UV_ATTRIB{ 1 };
 	static constexpr int VERTEX_NORMAL_ATTRIB{ 2 };
@@ -19,12 +23,15 @@ private:
 	GLuint vertexCount;
 
 private:
-	void bufferData() const;
+	void bufferVertices(const std::vector<GLfloat>& vertices);
+	void bufferIndices(const std::vector<GLuint>& indices);
+	void bufferTexture(const std::string& vertices);
 
 public:
 	Model() = default;
-		
 	Model(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData, const std::string& textureName);
+
+	~Model();
 
 	void init(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData, const std::string& textureName);
 

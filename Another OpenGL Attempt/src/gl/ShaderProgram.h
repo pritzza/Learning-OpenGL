@@ -7,6 +7,13 @@
 
 class ShaderProgram
 {
+public:
+	enum class ShaderType
+	{
+		Vertex,
+		Fragment
+	};
+
 private:
 	GLuint program{ };
 
@@ -15,9 +22,13 @@ private:
 private:
 	const bool checkStatus(const GLuint checkingStatus, const GLuint handle, const std::string& name) const;
 
+	const GLuint getShader(const std::string& fileName, const ShaderType type) const;
+
 public:
 	ShaderProgram() = default;
 	ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader);
+
+	~ShaderProgram();
 
 	void init(const std::string& vertexShader, const std::string& fragmentShader);
 

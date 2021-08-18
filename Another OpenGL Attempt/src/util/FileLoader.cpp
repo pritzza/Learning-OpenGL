@@ -21,3 +21,18 @@ const std::string FileLoader::getContents(const std::string& fileName) const
 
 	return { std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>() };
 }
+
+const std::string FileLoader::getShaderContents(const std::string& fileName) const
+{
+	return getContents(this->SHADERS_DIR + fileName);
+}
+
+const sf::Image FileLoader::getImage(const std::string& fileName) const
+{
+	sf::Image image;
+
+	if (!image.loadFromFile(this->TEXTURES_DIR + fileName))
+		image.create(1, 1);
+
+	return image;
+}

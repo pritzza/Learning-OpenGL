@@ -23,7 +23,7 @@ void Application::init()
 	if (!gladLoadGL())
 		this->terminate();
 
-	this->shader.init("Data/Shaders/Vertex.glsl", "Data/Shaders/Fragment.glsl");
+	this->shader.init("Vertex.glsl", "Fragment.glsl");
 	this->shader.use();
 
 	this->shader.setUniform("text", 0);
@@ -40,7 +40,7 @@ void Application::init()
 		1, 2, 3   // second Triangle
 	};
 
-	model.init(vertices, indices, "Data/Textures/guy.png");
+	model.init(vertices, indices, "guy.png");
 }
 
 void Application::terminate()

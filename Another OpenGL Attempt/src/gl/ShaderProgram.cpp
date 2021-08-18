@@ -9,29 +9,19 @@ ShaderProgram::ShaderProgram(const std::string& vertexShader, const std::string&
 	this->init(vertexShader, fragmentShader);
 }
 
+ShaderProgram::~ShaderProgram()
+{
+	glDeleteProgram(program);
+}
+
 void ShaderProgram::init(const std::string& vertexShader, const std::string& fragmentShader)
 {
-	const FileLoader fl;
-
-	const std::string vertexSourceString{ fl.getContents(vertexShader) };
-	const std::string fragmentSourceString{ fl.getContents(fragmentShader) };
-
-	const char* vertexSource{ vertexSourceString.c_str() };
-	const char* fragmentSource{ fragmentSourceString.c_str() };
-
+	// we have the creation of the indiivdual shaders abstracted, so this is really just the creation
+	// of the shader program, could or couldnt be made into a function idk
 	this->program = glCreateProgram();
 
-	const GLuint vertexID{ glCreateShader(GL_VERTEX_SHADER) };
-	const GLuint fragmentID{ glCreateShader(GL_FRAGMENT_SHADER) };
-
-	glShaderSource(vertexID, 1, &vertexSource, NULL);
-	glShaderSource(fragmentID, 1, &fragmentSource, NULL);
-
-	glCompileShader(vertexID);
-	checkStatus(GL_COMPILE_STATUS, vertexID, "vertex shader");
-
-	glCompileShader(fragmentID);
-	checkStatus(GL_COMPILE_STATUS, fragmentID, "fragment shader");
+	const GLuint vertexID{ this->getShader(vertexShader, ShaderType::Vertex) };
+	const GLuint fragmentID{ this->getShader(fragmentShader, ShaderType::Fragment) };
 
 	glAttachShader(program, vertexID);
 	glAttachShader(program, fragmentID);
@@ -41,6 +31,34 @@ void ShaderProgram::init(const std::string& vertexShader, const std::string& fra
 
 	glDeleteShader(vertexID);
 	glDeleteShader(fragmentID);
+}
+
+const GLuint ShaderProgram::getShader(const std::string& fileName, const ShaderType type) const
+{
+	// some prep work
+	GLuint shaderTypeID{};
+	std::string shaderTypeIDName{};
+
+	switch (type)
+	{
+	case ShaderType::Vertex:	shaderTypeID = GL_VERTEX_SHADER;	shaderTypeIDName = "Vertex Shader";		break;
+	case ShaderType::Fragment:	shaderTypeID = GL_FRAGMENT_SHADER;	shaderTypeIDName = "Fragment Shader";	break;	
+	}
+
+	// getting the shader's source from disk
+	const FileLoader fl;
+	const std::string shaderSourceString{ fl.getShaderContents(fileName) };
+	const char* shaderSource{ shaderSourceString.c_str() };
+
+	// actual opengl
+	const GLuint shaderID{ glCreateShader(shaderTypeID) };
+
+	glShaderSource(shaderID, 1, &shaderSource, NULL);
+
+	glCompileShader(shaderID);
+	checkStatus(GL_COMPILE_STATUS, shaderID, shaderTypeIDName);
+
+	return shaderID;
 }
 
 void ShaderProgram::setUniform(const std::string& uniformName, const GLfloat x, const GLfloat y, const GLfloat z)
