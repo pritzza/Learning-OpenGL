@@ -61,21 +61,29 @@ const GLuint ShaderProgram::getShader(const std::string& fileName, const ShaderT
 	return shaderID;
 }
 
-void ShaderProgram::setUniform(const std::string& uniformName, const GLfloat x, const GLfloat y, const GLfloat z)
+void ShaderProgram::loadUniform(const std::string& uniformName)
 {
 	// if we dont have a handle to the uniform, get it
 	if (uniforms.find(uniformName) == uniforms.end())
 		uniforms.insert({ uniformName, glGetUniformLocation(this->program, uniformName.c_str()) });
+}
 
+void ShaderProgram::setUniform(const std::string& uniformName, const GLfloat x, const GLfloat y, const GLfloat z)
+{
+	loadUniform(uniformName);
 	glUniform3f(uniforms.at(uniformName), x, y, z);
 }
 
 void ShaderProgram::setUniform(const std::string& uniformName, const GLuint textureID)
 {
-	if (uniforms.find(uniformName) == uniforms.end())
-		uniforms.insert({ uniformName, glGetUniformLocation(this->program, uniformName.c_str()) });
-
+	loadUniform(uniformName);
 	glUniform1i(uniforms.at(uniformName), textureID);
+}
+
+void ShaderProgram::setUniform(const std::string& uniformName, const glm::mat4& matrix)
+{
+	loadUniform(uniformName);
+	glUniformMatrix4fv(uniforms.at(uniformName), 1, GL_FALSE, &matrix[0][0]);
 }
 
 const bool ShaderProgram::checkStatus(const GLuint checkingStatus, const GLuint handle, const std::string& name) const

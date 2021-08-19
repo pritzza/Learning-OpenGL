@@ -2,8 +2,10 @@
 
 #include <glad/glad.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+
 #include <iostream>
-#include <string_view>
 
 #include <math.h>
 
@@ -50,6 +52,32 @@ void Application::terminate()
 
 void Application::applicationLoop()
 {
+	glm::mat4 translationMatrix
+	{
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+	};
+	
+	glm::mat4 projection{ glm::perspective(glm::radians(45.f), (float)window.getSize().x / window.getSize().y, 0.1f, 100.0f) };
+
+	glm::mat4 view{ glm::lookAt(
+		glm::vec3(4,3,3),
+		glm::vec3(0,0,0),
+		glm::vec3(0,1,0)
+		) };
+
+	glm::mat4 modelMatrix{ 1.0f };
+
+	glm::mat4 mvp{ projection * view * modelMatrix };
+
+	//glm::mat4 myMatrix = glm::translate(glm::mat4(), glm::vec3(10.0f, 0.0f, 0.0f));
+	//glm::vec4 myVector(10.0f, 10.0f, 10.0f, 0.0f);
+	//glm::vec4 transformedVector = myMatrix * myVector; // guess the result
+
+	this->shader.setUniform("transformationMatrix", mvp);
+
 	while (this->isRunning)
 	{
 		dt.start();

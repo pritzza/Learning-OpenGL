@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #include <string>
 #include <unordered_map>
@@ -24,6 +25,8 @@ private:
 
 	const GLuint getShader(const std::string& fileName, const ShaderType type) const;
 
+	void loadUniform(const std::string& uniformName);
+
 public:
 	ShaderProgram() = default;
 	ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader);
@@ -34,6 +37,7 @@ public:
 
 	void setUniform(const std::string& uniformName, const GLfloat x, const GLfloat y, const GLfloat z);
 	void setUniform(const std::string& uniformName, const GLuint textureID);
+	void setUniform(const std::string& uniformName, const glm::mat4& matrix);
 
 	inline void use()
 	{

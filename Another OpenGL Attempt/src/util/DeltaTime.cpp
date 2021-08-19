@@ -19,7 +19,7 @@ void DeltaTime::wait(const int targetFrameRate)
 
 	stop();
 
-	const double sleepTime{ (1.f / targetFrameRate) - processingTime };
+	const double sleepTime{ (1.0 / targetFrameRate) - processingTime };
 
 	sf::sleep(sf::seconds(sleepTime));
 
