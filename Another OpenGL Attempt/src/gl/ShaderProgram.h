@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 
+struct TransformationMatrix;
+
 class ShaderProgram
 {
 public:
@@ -37,7 +39,7 @@ public:
 
 	void setUniform(const std::string& uniformName, const GLfloat x, const GLfloat y, const GLfloat z);
 	void setUniform(const std::string& uniformName, const GLuint textureID);
-	void setUniform(const std::string& uniformName, const glm::mat4& matrix);
+	void setUniform(const std::string& uniformName, const TransformationMatrix& matrix);
 
 	inline void use()
 	{

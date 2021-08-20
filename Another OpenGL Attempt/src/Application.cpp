@@ -2,8 +2,7 @@
 
 #include <glad/glad.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
+#include "Entity.h"
 
 #include <iostream>
 
@@ -24,6 +23,8 @@ void Application::init()
 
 	if (!gladLoadGL())
 		this->terminate();
+
+	glEnable(GL_DEPTH_TEST);
 
 	this->shader.init("Vertex.glsl", "Fragment.glsl");
 	this->shader.use();
@@ -52,35 +53,14 @@ void Application::terminate()
 
 void Application::applicationLoop()
 {
-	glm::mat4 translationMatrix
-	{
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-	};
-	
-	glm::mat4 projection{ glm::perspective(glm::radians(45.f), (float)window.getSize().x / window.getSize().y, 0.1f, 100.0f) };
-
-	glm::mat4 view{ glm::lookAt(
-		glm::vec3(4,3,3),
-		glm::vec3(0,0,0),
-		glm::vec3(0,1,0)
-		) };
-
-	glm::mat4 modelMatrix{ 1.0f };
-
-	glm::mat4 mvp{ projection * view * modelMatrix };
-
-	//glm::mat4 myMatrix = glm::translate(glm::mat4(), glm::vec3(10.0f, 0.0f, 0.0f));
-	//glm::vec4 myVector(10.0f, 10.0f, 10.0f, 0.0f);
-	//glm::vec4 transformedVector = myMatrix * myVector; // guess the result
-
-	this->shader.setUniform("transformationMatrix", mvp);
+	Entity entity{ this->model };
 
 	while (this->isRunning)
 	{
 		dt.start();
+		
+		const float dtSin = sin(dt.getTotalTime());
+		const float dtCos = cos(dt.getTotalTime());
 
 		sf::Event event;
 
@@ -89,16 +69,18 @@ void Application::applicationLoop()
 
 		// update
 
-		this->shader.setUniform("posOffset", sin(dt.getTotalTime()), cos(dt.getTotalTime()), 0.f);
+		entity.move(0, 0, 0);
+		entity.rotate(1, 1, 1);
+		entity.scale(1);
 
 		// render
 		renderer.clear();
 
-		renderer.render(model);
+		renderer.render(shader, entity);
 
 		this->window.display();
 
-		dt.wait(60);
+		dt.wait(60);	// 60 fps
 	}
 }
 
