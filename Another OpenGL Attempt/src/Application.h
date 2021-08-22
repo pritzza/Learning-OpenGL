@@ -2,7 +2,7 @@
 
 #include <SFML/Window.hpp>
 
-#include "gl/Renderer.h"
+#include "render/Renderer.h"
 #include "gl/ShaderProgram.h"
 #include "gl/Model.h"
 
@@ -14,13 +14,15 @@ private:
 	sf::ContextSettings contextSettings;
 	sf::Window window;
 
+	static constexpr int FPS{ 60 };
 	bool isRunning{ true };
 
-	DeltaTime dt;
+	DeltaTime delta;
 
 	Renderer renderer;
 
 	ShaderProgram shader;
+
 	Model model;
 
 public:

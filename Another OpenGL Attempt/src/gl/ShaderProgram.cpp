@@ -1,6 +1,6 @@
 #include "ShaderProgram.h"
 
-#include "TransformationMatrix.h"
+#include "../math/MatrixMaker.h"
 
 #include "../util/FileLoader.h"
 
@@ -82,12 +82,10 @@ void ShaderProgram::setUniform(const std::string& uniformName, const GLuint text
 	glUniform1i(uniforms.at(uniformName), textureID);
 }
 
-void ShaderProgram::setUniform(const std::string& uniformName, const TransformationMatrix& matrix)
+void ShaderProgram::setUniform(const std::string& uniformName, const glm::mat4& matrix)
 {
-	const glm::mat4 transformationMatrix{ matrix.get() };
-
 	loadUniform(uniformName);
-	glUniformMatrix4fv(uniforms.at(uniformName), 1, GL_FALSE, &transformationMatrix[0][0]);
+	glUniformMatrix4fv(uniforms.at(uniformName), 1, GL_FALSE, &matrix[0][0]);
 }
 
 const bool ShaderProgram::checkStatus(const GLuint checkingStatus, const GLuint handle, const std::string& name) const

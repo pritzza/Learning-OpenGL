@@ -6,40 +6,74 @@
 
 #include "../util/FileLoader.h"
 
-void Model::bufferVertices(const std::vector<GLfloat>& vertices)
+Model::Model(const std::vector<GLfloat>& vertPositions,
+	const std::vector<GLfloat>& vertColors,
+	const std::vector<GLfloat>& vertUVs,
+	const std::vector<GLuint>& indexData,
+	const std::string& textureName)
+{
+	this->init(vertPositions, vertColors, vertUVs, indexData, textureName);
+}
+
+Model::~Model()
+{
+	glDeleteTextures(1, &texture);
+
+	glDeleteBuffers(1, &indexBuffer);
+
+	glDeleteBuffers(1, &normals.handle);
+	glDeleteBuffers(1, &colors.handle);
+	glDeleteBuffers(1, &uvs.handle);
+	glDeleteBuffers(1, &verticies.handle);
+
+	glDeleteVertexArrays(1, &vao);
+}
+
+void Model::init(
+	const std::vector<GLfloat>& vertexData,
+	const std::vector<GLfloat>& colorData,
+	const std::vector<GLfloat>& uvData,
+	const std::vector<GLuint>& indexData,
+	const std::string& textureName)
+{
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	this->bufferData(this->verticies, vertexData);
+	this->bufferData(this->colors,	  colorData );
+	this->bufferData(this->uvs,		  uvData	);
+	//this->bufferData(this->normals, normalData);
+
+	this->bufferIndices(indexData);
+	this->bufferTexture(textureName);
+}
+
+void Model::bufferData(VBO& vbo, const std::vector<GLfloat>& data)
 {
 	// vertex buffer
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+	glGenBuffers(1, &vbo.handle);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.handle);
+	glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(GLfloat), data.data(), GL_STATIC_DRAW);
 
-	// number of GLfloats per vertex
-	static constexpr int VERTEX_ELEMENTS{ 5 };
-	static constexpr int VERTEX_POS_ELEMENTS{ 3 };
-	static constexpr int VERTEX_UV_ELEMENTS{ 2 };
+	glVertexAttribPointer(
+		vbo.constants.attributeIndex,			// index
+		vbo.constants.size,						// size
+		GL_FLOAT,								// type
+		GL_FALSE,								// normalized
+		vbo.constants.size * sizeof(GLfloat),	// stride
+		(void*)0								// pointer/offset
+	);
 
-	// vertex positional data starts on the first byte of the vertexBuffer
-	constexpr int VERTEX_POS_DATA_START{ 0 * sizeof(GLfloat) };
-
-	glVertexAttribPointer(VERTEX_POS_ATTRIB, VERTEX_POS_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_ELEMENTS * sizeof(GLfloat), (void*)VERTEX_POS_DATA_START);
-
-	glEnableVertexAttribArray(VERTEX_POS_ATTRIB);
+	glEnableVertexAttribArray(vbo.constants.attributeIndex);
 }
 
 void Model::bufferIndices(const std::vector<GLuint>& indices)
 {
-	// index buffer
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glGenBuffers(1, &indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
 	this->vertexCount = indices.size();
-
-	constexpr int VERTEX_UV_DATA_START{ 3 * sizeof(GLfloat) };
-
-	glVertexAttribPointer(VERTEX_UV_ATTRIB, VERTEX_UV_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_ELEMENTS * sizeof(GLfloat), (void*)VERTEX_UV_DATA_START);
-
-	glEnableVertexAttribArray(VERTEX_UV_ATTRIB);
 }
 
 void Model::bufferTexture(const std::string& textureName)
@@ -63,27 +97,4 @@ void Model::bufferTexture(const std::string& textureName)
 	);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-}
-
-Model::Model(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData, const std::string& textureName)
-{
-	this->init(vertexData, indexData, textureName);
-}
-
-Model::~Model()
-{
-	glDeleteTextures(1, &texture);
-	glDeleteBuffers(1, &ibo);
-	glDeleteBuffers(1, &vbo);
-	glDeleteVertexArrays(1, &vao);
-}
-
-void Model::init(const std::vector<GLfloat>& vertexData, const std::vector<GLuint>& indexData, const std::string& textureName)
-{
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	this->bufferVertices(vertexData);
-	this->bufferIndices(indexData);
-	this->bufferTexture(textureName);
 }
