@@ -20,32 +20,40 @@ private:
 	std::unordered_map<std::string_view, GLint> uniforms;
 
 public:
+	ShaderProgram() = default;
 	ShaderProgram(
-		std::string_view vertexShaderPath,
-		std::string_view fragmentShaderPath,
+		const std::string_view& vertexShaderPath,
+		const std::string_view& fragmentShaderPath,
 		const std::vector<std::string_view>& uniformNames
 	);
 
 	~ShaderProgram();
 
-	void setUniformf(std::string_view name, float value);
-	void setUniformi(std::string_view name, int value);
-	void setUniformMat4(std::string_view name, const glm::mat4& matrix);
+	void init(
+		const std::string_view& vertexShaderPath,
+		const std::string_view& fragmentShaderPath,
+		const std::vector<std::string_view>& uniformNames
+	);
+
+	void setUniformf(const std::string_view& name, float value);
+	void setUniformi(const std::string_view& name, int value);
+	void setUniformMat4(const std::string_view& name, const glm::mat4& matrix);
 
 	const GLuint get() const;
 
 private:
+
 	void createProgram(GLuint vertex, GLuint fragment);
 
 	const GLuint createShader(
 		GLuint shaderType, 
-		std::string_view sourcePath
+		const std::string_view& sourcePath
 	) const;
 
 	void checkStatus(
 		GLuint statusType, 
 		GLuint handle, 
-		std::string_view name
+		const std::string_view& name
 	) const;
 
 	void findUniforms(const std::vector<std::string_view>& uniformNames);

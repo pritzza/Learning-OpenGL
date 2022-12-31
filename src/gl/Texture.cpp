@@ -5,9 +5,19 @@
 #include <iostream>
 
 Texture::Texture(const std::string_view& path, GLuint targetTexture)
-    :
-    targetTexture{ targetTexture }
 {
+    init(path, targetTexture);
+}
+
+Texture::~Texture()
+{
+    glDeleteTextures(1, &handle);
+}
+
+void Texture::init(const std::string_view& path, GLuint targetTexture)
+{
+    this->targetTexture = targetTexture;
+
     glGenTextures(1, &handle);
 
     /// load texture from disk
@@ -37,11 +47,6 @@ Texture::Texture(const std::string_view& path, GLuint targetTexture)
         // free texture data resources
         stbi_image_free(pixelData);
     }
-}
-
-Texture::~Texture()
-{
-    glDeleteTextures(1, &handle);
 }
 
 void Texture::configure(

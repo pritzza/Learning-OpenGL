@@ -6,6 +6,7 @@
 class Texture
 {
 public:
+	Texture() = default;
 	Texture(const std::string_view& path, GLuint targetTexture);
 
 	// delete copy, move and assignment constructor to prevent any chance of
@@ -15,6 +16,8 @@ public:
 	Texture& operator= (const Texture&) = delete;
 
 	~Texture();
+
+	void init(const std::string_view& path, GLuint targetTexture);
 
 	// configure wrapping and filter behavior
 	void configure(
@@ -33,7 +36,7 @@ public:
 
 private:
 	GLuint handle;
-	const GLuint targetTexture;
+	GLuint targetTexture;
 
 private:
 	void bufferData(

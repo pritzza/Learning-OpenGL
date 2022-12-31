@@ -74,3 +74,5 @@ void VAO::defineAttribute(const std::vector<Attribute>& attributeData)
     // enable attribute (no reason not to if we defined an attribute)
     glEnableVertexAttribArray(Attribute::META.location);
 }
+
+

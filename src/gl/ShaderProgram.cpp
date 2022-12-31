@@ -8,8 +8,24 @@
 #include "../util/FileReader.h"
 
 ShaderProgram::ShaderProgram(
-    const std::string_view vertexShaderPath, 
-    const std::string_view fragmentShaderPath, 
+    const std::string_view& vertexShaderPath, 
+    const std::string_view& fragmentShaderPath, 
+    const std::vector<std::string_view>& uniformNames
+)
+{
+    init(vertexShaderPath, fragmentShaderPath, uniformNames);
+}
+
+ShaderProgram::~ShaderProgram()
+{
+    // free resources given they are are valid
+    if (handle != INVALID_HANDLE)
+        glDeleteProgram(handle);
+}
+
+void ShaderProgram::init(
+    const std::string_view& vertexShaderPath,
+    const std::string_view& fragmentShaderPath, 
     const std::vector<std::string_view>& uniformNames
 )
 {
@@ -44,24 +60,20 @@ ShaderProgram::ShaderProgram(
     }
 }
 
-ShaderProgram::~ShaderProgram()
-{
-    // free resources given they are are valid
-    if (handle != INVALID_HANDLE)
-        glDeleteProgram(handle);
-}
-
-void ShaderProgram::setUniformf(std::string_view name, float value)
+void ShaderProgram::setUniformf(const std::string_view& name, float value)
 {
     glUniform1f(uniforms.at(name), value);
 }
 
-void ShaderProgram::setUniformi(std::string_view name, int value)
+void ShaderProgram::setUniformi(const std::string_view& name, int value)
 {
     glUniform1i(uniforms.at(name), value);
 }
 
-void ShaderProgram::setUniformMat4(std::string_view name, const glm::mat4& matrix)
+void ShaderProgram::setUniformMat4(
+    const std::string_view& name, 
+    const glm::mat4& matrix
+)
 {
     glUniformMatrix4fv(uniforms.at(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
@@ -79,7 +91,7 @@ const GLuint ShaderProgram::get() const
 
 const GLuint ShaderProgram::createShader(
     const GLuint shaderType, 
-    const std::string_view sourcePath
+    const std::string_view& sourcePath
 ) const
 {
     // attempt to get contents of file at sourcePath
@@ -114,7 +126,7 @@ const GLuint ShaderProgram::createShader(
 void ShaderProgram::checkStatus(
     const GLuint statusType, 
     const GLuint id,
-    const std::string_view name
+    const std::string_view& name
 ) const
 {
     static int success;
