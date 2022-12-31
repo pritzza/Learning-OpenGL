@@ -29,6 +29,7 @@
 
 Camera camera;
 
+
 // arguments for glVertexAttribPointer
 struct VertexAttributeInfo
 {
@@ -224,32 +225,14 @@ static const std::vector<GLuint> triIndices = {
     0, 1, 2,   // first triangle
 };
 
-/*
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    windowWidth = width;
-    windowHeight = height;
-    glViewport(0, 0, windowWidth, windowHeight);
-}
-
-void handleInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
-*/
-
 int main()
 {
     //// initilization
 
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    Window window{ "Finally", 800, 600 };
+    // name, width, height, GL major ver, GL minor ver, GL profile
+    Window window{ "Finally", 800, 600, 3, 3, GLFW_OPENGL_CORE_PROFILE };
 
     // load opengl functions with glad
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))

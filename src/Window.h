@@ -10,7 +10,10 @@ public:
 	Window(
 		const std::string_view& name,
 		int startingWidth,
-		int startinHeight
+		int startinHeight,
+		int majorVerson,
+		int minorVersion,
+		int profile
 	);
 
 public:
@@ -25,9 +28,8 @@ public:
 	int getWidth() const	{ return width;  }
 	int getHeight() const	{ return height; }
 
-
 private:
-	GLFWwindow* const window;
+	GLFWwindow* window;
 	int width;
 	int height;
 

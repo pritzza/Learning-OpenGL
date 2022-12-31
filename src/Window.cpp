@@ -6,19 +6,29 @@
 Window::Window(
 	const std::string_view& name,
 	int startingWidth, 
-	int startingHeight
+	int startingHeight,
+	int majorVersion,
+	int minorVersion,
+	int profile
 )
 	:
-	window{ glfwCreateWindow(
+	width{ startingWidth },
+	height{ startingHeight }
+{
+	// set hints about window before creating it
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
+	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);	// for acOS
+
+	window = glfwCreateWindow(
 		startingWidth, 		// width
 		startingHeight, 	// height
 		name.data(),		// name
 		nullptr, 			// monitor
 		nullptr				// share
-	) },
-	width{ startingWidth },
-	height{ startingHeight }
-{
+	);
+
 	const bool createdSuccessfully{ window != nullptr };
 	if (!createdSuccessfully)
 	{
@@ -79,11 +89,7 @@ void Window::setCallbacks()
 	// set other callbacks here
 }
 
-void Window::frameBufferResizeCallback(
-	GLFWwindow* window, 
-	int width, 
-	int height
-)
+void Window::frameBufferResizeCallback(GLFWwindow* window, int width, int height)
 {
 	Window& userWindow{ *(Window*)(glfwGetWindowUserPointer(window)) };
 
