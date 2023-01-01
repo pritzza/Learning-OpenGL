@@ -19,10 +19,13 @@ public:
 
     ~VAO();
 
-
+    // buffers and attributes vector vertex attributes
+    // Attribute must have a VertexAttributeInfo member defined
+    // and named "META"
     template<typename Attribute>
     void defineAttribute(const std::vector<Attribute>& data);
 
+    // buffers and binds GL_ELEMENT_ARRAY_BUFFER to self
     void defineIBO(const std::vector<GLuint>& indices);
 
     void bind() { glBindVertexArray(handle); }

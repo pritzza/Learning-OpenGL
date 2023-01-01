@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
+
 #include <vector>
 
 class VBO
@@ -42,7 +43,6 @@ inline VBO::VBO(const std::vector<T>& data, GLuint targetBuffer)
 	targetBuffer{ targetBuffer }
 {
 	glGenBuffers(1, &handle);
-
 	bufferData(data);
 }
 

@@ -17,8 +17,9 @@ VAO& VAO::operator=(VAO&& other)
     destroy();
     vbos = std::move(other.vbos);
     handle = other.handle;
-    //indexBuffer = std::move(other.indexBuffer);
+    indexBuffer = std::move(other.indexBuffer);
     other.reset();
+
     return *this;
 }
 
@@ -26,7 +27,6 @@ VAO::~VAO()
 {
     destroy();
 }
-
 
 void VAO::defineIBO(const std::vector<GLuint>& indices)
 {

@@ -4,19 +4,18 @@
 #include <unordered_map>
 #include <vector>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "GLTypeDefs.h"
 
 #include <glm/mat4x4.hpp>
 
 class ShaderProgram
 {
 private:
-	static inline constexpr GLuint INVALID_HANDLE = -1;
+	static inline constexpr GLuint NULL_HANDLE{ 0 };
 	static inline constexpr bool PRINT_ERRORS{ true };
 
 private:
-	GLuint handle{ INVALID_HANDLE };
+	GLuint handle{ NULL_HANDLE };
 	std::unordered_map<std::string_view, GLint> uniforms;
 
 public:

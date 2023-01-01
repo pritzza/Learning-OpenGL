@@ -44,4 +44,16 @@ private:
 		int width, 
 		int height
 	);
+
+	/*
+	* other call backs
+	glfwSetWindowPosCallback			(GLFWwindow* w, GLFWwindowposfun callback)
+	glfwSetWindowCloseCallback			(GLFWwindow* w, GLFWwindowclosefun callback)
+	glfwSetWindowRefreshCallback		(GLFWwindow* w, GLFWwindowrefreshfun callback)
+	glfwSetWindowFocusCallback			(GLFWwindow* w, GLFWwindowfocusfun callback)
+	glfwSetWindowIconifyCallback		(GLFWwindow* w, GLFWwindowiconifyfun callback)
+	glfwSetWindowMaximizeCallback		(GLFWwindow* w, GLFWwindowmaximizefun callback)
+	glfwSetFramebufferSizeCallback		(GLFWwindow* w, GLFWframebuffersizefun callback)
+	glfwSetWindowContentScaleCallback	(GLFWwindow* w, GLFWwindowcontentscalefun callback)
+	*/
 };

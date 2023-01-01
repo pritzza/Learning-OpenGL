@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include <glad/glad.h>
+
 #include <stb_image.h>
 
 #include <iostream>
@@ -32,7 +34,7 @@ void Texture::init(const std::string_view& path, GLuint targetTexture)
         &width,
         &height,
         &numColorChannels,
-        0
+        0                       // desired channels (0 does it automatically)
     ) };
 
     // if texture data not loaded
@@ -70,7 +72,7 @@ void Texture::apply(GLuint textureUnit)
     // active texture unit
     glActiveTexture(textureUnit);
 
-    // bind texture to active texture unit
+    // bind texture to said active texture unit
     bind();
 }
 

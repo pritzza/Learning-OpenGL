@@ -53,18 +53,19 @@ struct TextureCoordinate2D
     GLfloat s, t;
 };
 
-struct Vertex
-{
-    Position pos;
-    Color color;
-    TextureCoordinate2D texCoord;
-};
 
 // compile time sanity check to make sure no attirbutes have the same location
 static_assert(
     Position::META.location != Color::META.location &&
     Color::META.location != TextureCoordinate2D::META.location
     );
+
+struct Vertex
+{
+    Position pos;
+    Color color;
+    TextureCoordinate2D texCoord;
+};
 
 // todo: find a way to make this more flexible/dynamic
 constexpr size_t VERTEX_POS_OFFSET{ offsetof(Vertex, Vertex::pos) };

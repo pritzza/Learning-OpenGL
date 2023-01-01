@@ -19,7 +19,7 @@ Window::Window(
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
-	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);	// for acOS
+	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);	// for MacOS
 
 	window = glfwCreateWindow(
 		startingWidth, 		// width
@@ -36,6 +36,10 @@ Window::Window(
 		assert(false);
 	}
 
+	// bind opengl context to window
+	glfwMakeContextCurrent(window);
+
+
 	// todo: see if can get working
 	//const bool gladHasLoaded{ gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) };
 	//if (!gladHasLoaded)
@@ -47,8 +51,6 @@ Window::Window(
 	//glViewport(0, 0, width, height);
 	
 
-	// bind opengl context to window
-	glfwMakeContextCurrent(window);
 
 	setCallbacks();
 }

@@ -1,6 +1,7 @@
 #include "ShaderProgram.h"
 
-#include <iostream>
+#include <glad/glad.h>
+
 #include <optional>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -18,9 +19,7 @@ ShaderProgram::ShaderProgram(
 
 ShaderProgram::~ShaderProgram()
 {
-    // free resources given they are are valid
-    if (handle != INVALID_HANDLE)
-        glDeleteProgram(handle);
+    glDeleteProgram(handle);
 }
 
 void ShaderProgram::init(
@@ -40,8 +39,8 @@ void ShaderProgram::init(
     ) };
 
     const bool shadersAreValid{
-        vertexShader   != INVALID_HANDLE &&
-        fragmentShader != INVALID_HANDLE
+        vertexShader   != NULL_HANDLE &&
+        fragmentShader != NULL_HANDLE
     };
 
     if (shadersAreValid)
@@ -80,7 +79,7 @@ void ShaderProgram::setUniformMat4(
 
 const GLuint ShaderProgram::get() const
 {
-    if (handle == INVALID_HANDLE)
+    if (handle == NULL_HANDLE)
     {
         if (PRINT_ERRORS)
             std::cerr << "Error! Accessing invalid Shader Program handle.\n";
@@ -187,11 +186,11 @@ void ShaderProgram::createProgram(const GLuint vertex, const GLuint fragment)
     // create program
     handle = glCreateProgram();
 
-    // attatch shaders to program
+    // attach shaders to program
     glAttachShader(handle, vertex);
     glAttachShader(handle, fragment);
 
     // link program
     glLinkProgram(handle);
-    checkStatus(GL_LINK_STATUS, handle, "Shader Program");
+    checkStatus(GL_LINK_STATUS, handle, "Shader Program (" + handle + ')');
 }
