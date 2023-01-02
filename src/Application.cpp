@@ -8,8 +8,6 @@
 
 #include <glm/trigonometric.hpp>
 
-#include "ModelMatrix.h"
-
 #include "util/Math.h"
 
 /// todo find a better place for these
@@ -71,41 +69,6 @@ struct Vertex
 constexpr size_t VERTEX_POS_OFFSET{ offsetof(Vertex, Vertex::pos) };
 constexpr size_t VERTEX_COLOR_OFFSET{ offsetof(Vertex, Vertex::color) };
 constexpr size_t VERTEX_TEXCOORD_OFFSET{ offsetof(Vertex, Vertex::texCoord) };
-
-// quad
-static const std::vector<Vertex> quadVertices = {
-    //{ Position            }, { Color                  }, { TexCoord }
-    { {  0.5f,  0.5f,  0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } },  // top right
-    { {  0.5f, -0.5f,  0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },  // bottom right
-    { { -0.5f, -0.5f,  0.0f }, { 0.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },  // bottom left
-    { { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },  // top left 
-};
-
-static const std::vector<Position> quadPosVertices = {
-    {  0.5f,  0.5f,  0.0f },  // top right
-    {  0.5f, -0.5f,  0.0f },  // bottom right
-    { -0.5f, -0.5f,  0.0f },  // bottom left
-    { -0.5f,  0.5f,  0.0f },  // top left 
-};
-
-static const std::vector<Color> quadColors = {
-    { 1.0f, 0.0f, 1.0f, 1.0f },  // top right
-    { 0.0f, 1.0f, 0.0f, 1.0f },  // bottom right
-    { 0.0f, 1.0f, 1.0f, 1.0f },  // bottom left
-    { 1.0f, 1.0f, 0.0f, 1.0f },  // top left 
-};
-
-static const std::vector<TextureCoordinate2D> quadTexCoords = {
-    { 1.0f, 1.0f },  // top right
-    { 1.0f, 0.0f },  // bottom right
-    { 0.0f, 0.0f },  // bottom left
-    { 0.0f, 1.0f },  // top left 
-};
-
-static const std::vector<GLuint> quadIndices = {
-    0, 1, 3,   // first triangle
-    1, 2, 3,   // second triangle
-};
 
 // cube
 static const std::vector<Position> cubePosVertices = {
@@ -198,19 +161,6 @@ static const std::vector<TextureCoordinate2D> cubeTexCoords = {
     { 0.0f, 1.0f }
 };
 
-// triangle
-static const std::vector<Vertex> triVertices = {
-    //{ Position            }, { Color                  }, { TexCoord }
-    { { -0.5f, -0.5f,  0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },  // bot left
-    { {  0.5f, -0.5f,  0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },  // bot right 
-    { {  0.0f,  0.5f,  0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f }, { 0.5f, 1.0f } },  // top
-};
-
-static const std::vector<GLuint> triIndices = {
-    0, 1, 2,   // first triangle
-};
-
-
 Application::Application(
 	const std::string_view& name, 
 	int windowWidth, 
@@ -235,7 +185,7 @@ Application::Application(
 	}
 
 
-	// todo: turns our glad can only be loaded after creating ontext?
+	// todo: turns our glad can only be loaded after creating context
 	initGLAD();
 	initOpenGL();
 }
@@ -259,54 +209,45 @@ void Application::initializeObjects()
     // allocate gl objects now that everything is loaded
 	gl = std::make_unique<OpenGLStuff>();
 
-    // cube
-	gl->cube.defineAttribute(cubePosVertices);
-	gl->cube.defineAttribute(cubeTexCoords);
+    gl->lightSourceCube.defineAttribute(cubePosVertices);
 
-    // quad
-    gl->quad.defineAttribute(quadPosVertices);
-    gl->quad.defineAttribute(quadTexCoords);
+    gl->objectCube.defineAttribute(cubePosVertices);
 
     // shader stuff
-    constexpr std::string_view VERTEX_SHADER_SOURCE_PATH{
-        "res/shaders/Vertex.glsl"
+    constexpr std::string_view ALL_OBJECTS_VERTEX_SHADER_PATH{
+        "res/shaders/AllObjectsVertex.glsl"
     };
-    constexpr std::string_view FRAGMENT_SHADER_SOURCE_PATH{
-        "res/shaders/Fragment.glsl"
+    constexpr std::string_view LIGHT_SOURCE_FRAGMENT_SHADER_PATH{
+        "res/shaders/LightSourceFragment.glsl"
+    };
+    constexpr std::string_view OBJECT_FRAGMENT_SHADER_PATH{
+        "res/shaders/ObjectFragment.glsl"
     };
 
-    const std::vector<std::string_view> SHADER_UNIFORM_NAMES = {
-        UNIFORM_TIME,
-        UNIFORM_TEXTURE0,
-        UNIFORM_TEXTURE1,
+    const std::vector<std::string_view> LIGHT_SOURCE_PROGRAM_UNIFORM_NAMES = {
         UNIFORM_MODEL_MAT,
         UNIFORM_VIEW_MAT,
         UNIFORM_PERSPECTIVE_MAT,
     };
 
-    gl->shaderProgram.init(VERTEX_SHADER_SOURCE_PATH, 
-        FRAGMENT_SHADER_SOURCE_PATH, 
-        SHADER_UNIFORM_NAMES);
+    const std::vector<std::string_view> OBJECT_PROGRAM_UNIFORM_NAMES = {
+        UNIFORM_OBJECT_COLOR,
+        UNIFORM_LIGHT_COLOR,
+        UNIFORM_MODEL_MAT,
+        UNIFORM_VIEW_MAT,
+        UNIFORM_PERSPECTIVE_MAT,
+    };
 
-    /// texture stuff
-    // texture 0
-    constexpr std::string_view texture0Path{ "res/textures/pipe.jpg" };
-    gl->texture0.init(texture0Path, GL_TEXTURE_2D);
-    gl->texture0.configure(
-        GL_CLAMP_TO_EDGE,
-        GL_CLAMP_TO_EDGE,
-        GL_LINEAR_MIPMAP_LINEAR,
-        GL_LINEAR
+    gl->lightSourceProgram.init(
+        ALL_OBJECTS_VERTEX_SHADER_PATH,
+        LIGHT_SOURCE_FRAGMENT_SHADER_PATH,
+        LIGHT_SOURCE_PROGRAM_UNIFORM_NAMES
     );
 
-    // texture 1
-    constexpr std::string_view texture1Path{ "res/textures/log.png" };
-    gl->texture1.init(texture1Path, GL_TEXTURE_2D);
-    gl->texture1.configure(
-        GL_CLAMP_TO_EDGE,
-        GL_CLAMP_TO_EDGE,
-        GL_LINEAR_MIPMAP_LINEAR,
-        GL_LINEAR
+    gl->objectProgram.init(
+        ALL_OBJECTS_VERTEX_SHADER_PATH,
+        OBJECT_FRAGMENT_SHADER_PATH,
+        OBJECT_PROGRAM_UNIFORM_NAMES
     );
 
     // create perspective projection matrix
@@ -317,7 +258,13 @@ void Application::initializeObjects()
 
     camera.setProjectionMatrix(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
 
-    camera.setPosition({ -7.f, 0.f, 0.f });
+    camera.setPosition({ -5.0f, 0.f, 0.f });
+
+    gl->objectTransform.setPosition({ 2.f, 0.f, 0.f });
+    gl->lightSourceTransform.setPosition({ 1.f, 3.f, 3.f });
+
+    gl->lightSourceColor = glm::vec3{ 0.1f, 1.0f, 0.2f };
+    gl->objectColor = glm::vec3{ 1.f, 0.8f, 0.7f };
 }
 
 void Application::applicationLoop()
@@ -373,81 +320,81 @@ void Application::update()
         stop();
 
 
+    camera.update();
+   
+    gl->objectTransform.update();
+    gl->lightSourceTransform.update();
+
 
     //// pre rendering frame
     // clear color buffer and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ////// update per frame
+    /// rendering light source
 
-    camera.update();
+    // activate shader
+    gl->lightSourceProgram.use();
 
-    glUseProgram(gl->shaderProgram.get());
-    gl->shaderProgram.setUniformMat4(
+    // update all uniforms (just CAMERA TRANSFORM DUMMY [its 3 matrices!!!])
+    gl->lightSourceProgram.setUniformMat4(
+        UNIFORM_MODEL_MAT,
+        gl->lightSourceTransform.getMatrix()
+    );
+
+    gl->lightSourceProgram.setUniformMat4(
+        UNIFORM_VIEW_MAT,
+        camera.getViewMatrix()
+    );
+
+    gl->lightSourceProgram.setUniformMat4(
         UNIFORM_PERSPECTIVE_MAT,
         camera.getProjectionMatrix()
     );
 
-    gl->shaderProgram.setUniformMat4(UNIFORM_VIEW_MAT, camera.getViewMatrix());
+    // bind light source VAO
+    gl->lightSourceCube.bind();
 
-    //// render
-    const int numCubes{ 300 };
-    for (int i = 0; i < numCubes; ++i)
-    {
-        ///// update per object
-        /// update per model uniforms
-
-        /// update model matrices
-
-        ModelMatrix transform;
-
-        transform.translate({
-            std::cosf(glfwGetTime() + i),
-            std::sinf(glfwGetTime() + i),
-            i - (numCubes / 2.f)
-            });
-
-        transform.rotate(glfwGetTime(), Math::Axis::Z);
-
-        // actually setting uniforms
-        // (program must be active to update uniforms)
-        glUseProgram(gl->shaderProgram.get());
-
-        transform.update();
-        gl->shaderProgram.setUniformMat4(UNIFORM_MODEL_MAT, transform.getMatrix());
-
-        gl->shaderProgram.setUniformf(UNIFORM_TIME, glfwGetTime() + i);
-
-        //// render object prep
-
-        // bind vao
-        glBindVertexArray(gl->cube.getHandle());
-
-        // bind shader program
-        glUseProgram(gl->shaderProgram.get());
-
-        // bind correct textures to correct texture units
-        // update sampler uniforms
-        // (depends on rendering architecture)
-        gl->texture0.apply(GL_TEXTURE0);
-        gl->texture1.apply(GL_TEXTURE1);
-
-        gl->shaderProgram.setUniformi(UNIFORM_TEXTURE0, 0);
-        gl->shaderProgram.setUniformi(UNIFORM_TEXTURE1, 1);
-
-        /// actually rendering object
-        glDrawArrays(GL_TRIANGLES, 0, cubePosVertices.size());
+    // draw light source
+    glDrawArrays(GL_TRIANGLES, 0, cubePosVertices.size());
 
 
-        /// rendering clean up
+    /// rendering object
 
-        // (optional) unbind shader program
-        glUseProgram(0);
+    // activate object shader
+    gl->objectProgram.use();
 
-        // (optional) unbind vao
-        glBindVertexArray(0);
-    }
+    /// update all uniforms (CAMERA TRANSFORM, obj color, and light source color)
+    // camera transform
+    gl->objectProgram.setUniformMat4(
+        UNIFORM_MODEL_MAT,
+        gl->objectTransform.getMatrix()
+    );
+    gl->objectProgram.setUniformMat4(
+        UNIFORM_VIEW_MAT,
+        camera.getViewMatrix()
+    );
 
+    gl->objectProgram.setUniformMat4(
+        UNIFORM_PERSPECTIVE_MAT,
+        camera.getProjectionMatrix()
+    );
+
+    // lighting stuff
+    gl->objectProgram.setUniformVec3f(
+        UNIFORM_LIGHT_COLOR,
+        gl->lightSourceColor
+    );
+
+    gl->objectProgram.setUniformVec3f(
+        UNIFORM_OBJECT_COLOR,
+        gl->objectColor
+    );
+
+    // bind object VAO
+    gl->objectCube.bind();
+
+    // draw object
+    glDrawArrays(GL_TRIANGLES, 0, cubePosVertices.size());
 }
 
 void Application::display()

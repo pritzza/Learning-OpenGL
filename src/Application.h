@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Camera.h"
+#include "ModelMatrix.h"
 #include "Window.h"
 
 #include "gl/ShaderProgram.h"
@@ -39,13 +40,16 @@ public:
 
 	struct OpenGLStuff
 	{
-		VAO cube;
-		VAO quad;
+		VAO lightSourceCube;
+		ModelMatrix lightSourceTransform;
+		glm::vec3 lightSourceColor;
 
-		ShaderProgram shaderProgram;
+		VAO objectCube;
+		ModelMatrix objectTransform;
+		glm::vec3 objectColor;
 
-		Texture texture0;
-		Texture texture1;
+		ShaderProgram lightSourceProgram;
+		ShaderProgram objectProgram;
 	};
 
 	std::unique_ptr<OpenGLStuff> gl;
@@ -56,13 +60,22 @@ private:
 	static constexpr int OPENGL_PROFILE{ GLFW_OPENGL_CORE_PROFILE };
 
 	// todo: find better place for this
-	// uniform names lol
+	/// uniform names lol
+	// from goofing around
 	static constexpr std::string_view UNIFORM_TIME{ "time" };
+
+	// textures
 	static constexpr std::string_view UNIFORM_TEXTURE0{ "texture0" };
 	static constexpr std::string_view UNIFORM_TEXTURE1{ "texture1" };
+
+	// camera transform
 	static constexpr std::string_view UNIFORM_MODEL_MAT{ "model" };
 	static constexpr std::string_view UNIFORM_VIEW_MAT{ "view" };
 	static constexpr std::string_view UNIFORM_PERSPECTIVE_MAT{ "perspective" };
+
+	// from Lighting: Colors
+	static constexpr std::string_view UNIFORM_LIGHT_COLOR{ "lightColor" };
+	static constexpr std::string_view UNIFORM_OBJECT_COLOR{ "objectColor" };
 
 private:
 	void initializeObjects();

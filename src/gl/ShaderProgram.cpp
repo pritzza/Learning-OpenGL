@@ -69,12 +69,22 @@ void ShaderProgram::setUniformi(const std::string_view& name, int value)
     glUniform1i(uniforms.at(name), value);
 }
 
+void ShaderProgram::setUniformVec3f(const std::string_view& name, const glm::vec3& v)
+{
+    glUniform3fv(uniforms.at(name), 1, &v[0]);
+}
+
 void ShaderProgram::setUniformMat4(
     const std::string_view& name, 
     const glm::mat4& matrix
 )
 {
     glUniformMatrix4fv(uniforms.at(name), 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void ShaderProgram::use()
+{
+    glUseProgram(handle);
 }
 
 const GLuint ShaderProgram::get() const

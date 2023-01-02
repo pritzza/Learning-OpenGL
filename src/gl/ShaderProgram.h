@@ -36,7 +36,10 @@ public:
 
 	void setUniformf(const std::string_view& name, float value);
 	void setUniformi(const std::string_view& name, int value);
+	void setUniformVec3f(const std::string_view& name, const glm::vec3& v);
 	void setUniformMat4(const std::string_view& name, const glm::mat4& matrix);
+
+	void use();
 
 	const GLuint get() const;
 
