@@ -225,6 +225,7 @@ void Application::initializeObjects()
     };
 
     const std::vector<std::string_view> LIGHT_SOURCE_PROGRAM_UNIFORM_NAMES = {
+        UNIFORM_LIGHT_COLOR,
         UNIFORM_MODEL_MAT,
         UNIFORM_VIEW_MAT,
         UNIFORM_PERSPECTIVE_MAT,
@@ -260,11 +261,9 @@ void Application::initializeObjects()
 
     camera.setPosition({ -5.0f, 0.f, 0.f });
 
-    gl->objectTransform.setPosition({ 2.f, 0.f, 0.f });
-    gl->lightSourceTransform.setPosition({ 1.f, 3.f, 3.f });
+    gl->objectTransform.setPosition({ 3.f, 0.f, -2.f });
+    gl->lightSourceTransform.setPosition({ 2.f, 2.f, 2.f });
 
-    gl->lightSourceColor = glm::vec3{ 0.1f, 1.0f, 0.2f };
-    gl->objectColor = glm::vec3{ 1.f, 0.8f, 0.7f };
 }
 
 void Application::applicationLoop()
@@ -325,6 +324,17 @@ void Application::update()
     gl->objectTransform.update();
     gl->lightSourceTransform.update();
 
+    gl->lightSourceColor = glm::vec3{ 
+        1.0f,                           // r
+        (sin(currentTime)/2) + .5 ,     // g
+        (sin(currentTime)/2) + .5       // b
+    };
+    
+    gl->objectColor = glm::vec3{ 
+        0.0f,           // r
+        0.0f,           // g
+        1.0f            // b
+    };
 
     //// pre rendering frame
     // clear color buffer and depth buffer
@@ -335,7 +345,8 @@ void Application::update()
     // activate shader
     gl->lightSourceProgram.use();
 
-    // update all uniforms (just CAMERA TRANSFORM DUMMY [its 3 matrices!!!])
+    /// update all uniforms (CAMERA TRANSFORM and light color)
+    // camera transform
     gl->lightSourceProgram.setUniformMat4(
         UNIFORM_MODEL_MAT,
         gl->lightSourceTransform.getMatrix()
@@ -349,6 +360,11 @@ void Application::update()
     gl->lightSourceProgram.setUniformMat4(
         UNIFORM_PERSPECTIVE_MAT,
         camera.getProjectionMatrix()
+    );
+
+    gl->lightSourceProgram.setUniformVec3f(
+        UNIFORM_LIGHT_COLOR,
+        gl->lightSourceColor
     );
 
     // bind light source VAO
