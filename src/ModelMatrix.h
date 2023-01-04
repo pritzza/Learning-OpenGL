@@ -14,6 +14,9 @@ public:
 	// multiply current scale component wise by scale
 	void scale(const glm::vec3& scaling);
 
+	// multiply current scale by scalar for uniform scale
+	void scale(float scalar);
+
 	// rotate about each axis by rotation's component's in degrees
 	void rotate(const glm::vec3& rotation);
 

@@ -26,6 +26,8 @@ public:
 
 
 	// getters
+	const glm::vec3& getPosition() const	{ return position;	  }
+	
 	float getPitch() const					{ return pitch;		  }
 	float getYaw() const					{ return yaw;		  }
 	const glm::mat4& getViewMatrix() const	{ return viewMatrix;  }

@@ -51,13 +51,24 @@ struct TextureCoordinate2D
     GLfloat s, t;
 };
 
+struct Normal
+{
+    static constexpr VertexAttributeInfo META
+    {
+        3, 3, GL_FLOAT, GL_FALSE
+    };
+
+    GLfloat x, y, z;
+};
 
 // compile time sanity check to make sure no attirbutes have the same location
 static_assert(
     Position::META.location != Color::META.location &&
-    Color::META.location != TextureCoordinate2D::META.location
+    Color::META.location != TextureCoordinate2D::META.location &&
+    TextureCoordinate2D::META.location != Normal::META.location
     );
 
+/*
 struct Vertex
 {
     Position pos;
@@ -69,6 +80,7 @@ struct Vertex
 constexpr size_t VERTEX_POS_OFFSET{ offsetof(Vertex, Vertex::pos) };
 constexpr size_t VERTEX_COLOR_OFFSET{ offsetof(Vertex, Vertex::color) };
 constexpr size_t VERTEX_TEXCOORD_OFFSET{ offsetof(Vertex, Vertex::texCoord) };
+*/
 
 // cube
 static const std::vector<Position> cubePosVertices = {
@@ -161,6 +173,50 @@ static const std::vector<TextureCoordinate2D> cubeTexCoords = {
     { 0.0f, 1.0f }
 };
 
+static const std::vector<Normal> cubeNormals = {
+   { 0.0f,  0.0f, -1.0f },
+   { 0.0f,  0.0f, -1.0f },
+   { 0.0f,  0.0f, -1.0f },
+   { 0.0f,  0.0f, -1.0f },
+   { 0.0f,  0.0f, -1.0f },
+   { 0.0f,  0.0f, -1.0f },
+
+   { 0.0f,  0.0f, 1.0f, },
+   { 0.0f,  0.0f, 1.0f, },
+   { 0.0f,  0.0f, 1.0f, },
+   { 0.0f,  0.0f, 1.0f, },
+   { 0.0f,  0.0f, 1.0f, },
+   { 0.0f,  0.0f, 1.0f, },
+
+   {-1.0f,  0.0f,  0.0f },
+   {-1.0f,  0.0f,  0.0f },
+   {-1.0f,  0.0f,  0.0f },
+   {-1.0f,  0.0f,  0.0f },
+   {-1.0f,  0.0f,  0.0f },
+   {-1.0f,  0.0f,  0.0f },
+
+   { 1.0f,  0.0f,  0.0f },
+   { 1.0f,  0.0f,  0.0f },
+   { 1.0f,  0.0f,  0.0f },
+   { 1.0f,  0.0f,  0.0f },
+   { 1.0f,  0.0f,  0.0f },
+   { 1.0f,  0.0f,  0.0f },
+
+   { 0.0f, -1.0f,  0.0f },
+   { 0.0f, -1.0f,  0.0f },
+   { 0.0f, -1.0f,  0.0f },
+   { 0.0f, -1.0f,  0.0f },
+   { 0.0f, -1.0f,  0.0f },
+   { 0.0f, -1.0f,  0.0f },
+
+   { 0.0f,  1.0f,  0.0f },
+   { 0.0f,  1.0f,  0.0f },
+   { 0.0f,  1.0f,  0.0f },
+   { 0.0f,  1.0f,  0.0f },
+   { 0.0f,  1.0f,  0.0f },
+   { 0.0f,  1.0f,  0.0f },
+};
+
 Application::Application(
 	const std::string_view& name, 
 	int windowWidth, 
@@ -212,16 +268,41 @@ void Application::initializeObjects()
     gl->lightSourceCube.defineAttribute(cubePosVertices);
 
     gl->objectCube.defineAttribute(cubePosVertices);
+    gl->objectCube.defineAttribute(cubeNormals);
 
-    // shader stuff
-    constexpr std::string_view ALL_OBJECTS_VERTEX_SHADER_PATH{
-        "res/shaders/AllObjectsVertex.glsl"
-    };
-    constexpr std::string_view LIGHT_SOURCE_FRAGMENT_SHADER_PATH{
-        "res/shaders/LightSourceFragment.glsl"
+    //// shader stuff
+
+    // object shader
+    constexpr std::string_view OBJECT_VERTEX_SHADER_PATH{
+        "res/shaders/Lighting/ObjectVertex.glsl"
     };
     constexpr std::string_view OBJECT_FRAGMENT_SHADER_PATH{
-        "res/shaders/ObjectFragment.glsl"
+        "res/shaders/Lighting/ObjectFragment.glsl"
+    };
+
+    const std::vector<std::string_view> OBJECT_PROGRAM_UNIFORM_NAMES = {
+        UNIFORM_VIEW_POSITION,
+        UNIFORM_LIGHT_SOURCE_POSITION,
+        UNIFORM_OBJECT_COLOR,
+        UNIFORM_LIGHT_COLOR,
+        UNIFORM_MODEL_MAT,
+        UNIFORM_VIEW_MAT,
+        UNIFORM_PERSPECTIVE_MAT,
+    };
+
+    gl->objectProgram.init(
+        OBJECT_VERTEX_SHADER_PATH,
+        OBJECT_FRAGMENT_SHADER_PATH,
+        OBJECT_PROGRAM_UNIFORM_NAMES
+    );
+
+
+    /// light source shader
+    constexpr std::string_view LIGHT_SOURCE_VERTEX_SHADER_PATH{
+        "res/shaders/Lighting/LightSourceVertex.glsl"
+    };
+    constexpr std::string_view LIGHT_SOURCE_FRAGMENT_SHADER_PATH{
+        "res/shaders/Lighting/LightSourceFragment.glsl"
     };
 
     const std::vector<std::string_view> LIGHT_SOURCE_PROGRAM_UNIFORM_NAMES = {
@@ -231,25 +312,12 @@ void Application::initializeObjects()
         UNIFORM_PERSPECTIVE_MAT,
     };
 
-    const std::vector<std::string_view> OBJECT_PROGRAM_UNIFORM_NAMES = {
-        UNIFORM_OBJECT_COLOR,
-        UNIFORM_LIGHT_COLOR,
-        UNIFORM_MODEL_MAT,
-        UNIFORM_VIEW_MAT,
-        UNIFORM_PERSPECTIVE_MAT,
-    };
-
     gl->lightSourceProgram.init(
-        ALL_OBJECTS_VERTEX_SHADER_PATH,
+        LIGHT_SOURCE_VERTEX_SHADER_PATH,
         LIGHT_SOURCE_FRAGMENT_SHADER_PATH,
         LIGHT_SOURCE_PROGRAM_UNIFORM_NAMES
     );
 
-    gl->objectProgram.init(
-        ALL_OBJECTS_VERTEX_SHADER_PATH,
-        OBJECT_FRAGMENT_SHADER_PATH,
-        OBJECT_PROGRAM_UNIFORM_NAMES
-    );
 
     // create perspective projection matrix
     const float FOV{ glm::radians(45.f) };
@@ -259,10 +327,14 @@ void Application::initializeObjects()
 
     camera.setProjectionMatrix(FOV, ASPECT_RATIO, NEAR_PLANE, FAR_PLANE);
 
-    camera.setPosition({ -5.0f, 0.f, 0.f });
+    camera.setPosition({ 0.0f, 0.f, -10.f });
+    camera.setYaw(glm::radians(90.f));
 
-    gl->objectTransform.setPosition({ 3.f, 0.f, -2.f });
-    gl->lightSourceTransform.setPosition({ 2.f, 2.f, 2.f });
+    //gl->objectTransform.setPosition({ 3.f, 0.f, -2.f });
+
+    gl->objectTransform.scale(0.8f);
+
+    gl->lightSourceTransform.setPosition({ 0.f, 0.f, 0.f });
 
 }
 
@@ -321,17 +393,25 @@ void Application::update()
 
     camera.update();
    
-    gl->objectTransform.update();
+    //gl->objectTransform.setPosition({ 3.f, 0.f, -2.f });
+
+    gl->objectTransform.rotate({
+        deltaTime/1.f,
+        deltaTime/2.f,
+        deltaTime/3.f
+    });
+
+    //gl->objectTransform.update();
     gl->lightSourceTransform.update();
 
     gl->lightSourceColor = glm::vec3{ 
-        1.0f,                           // r
-        (sin(currentTime)/2) + .5 ,     // g
-        (sin(currentTime)/2) + .5       // b
+        1.0f,                          // r
+        (sin(currentTime)/2) + .5 ,    // g
+        (cos(currentTime)/2) + .5      // b
     };
     
     gl->objectColor = glm::vec3{ 
-        0.0f,           // r
+        1.0f,           // r
         0.0f,           // g
         1.0f            // b
     };
@@ -351,17 +431,16 @@ void Application::update()
         UNIFORM_MODEL_MAT,
         gl->lightSourceTransform.getMatrix()
     );
-
     gl->lightSourceProgram.setUniformMat4(
         UNIFORM_VIEW_MAT,
         camera.getViewMatrix()
     );
-
     gl->lightSourceProgram.setUniformMat4(
         UNIFORM_PERSPECTIVE_MAT,
         camera.getProjectionMatrix()
     );
 
+    // lighting stuff
     gl->lightSourceProgram.setUniformVec3f(
         UNIFORM_LIGHT_COLOR,
         gl->lightSourceColor
@@ -379,38 +458,58 @@ void Application::update()
     // activate object shader
     gl->objectProgram.use();
 
-    /// update all uniforms (CAMERA TRANSFORM, obj color, and light source color)
-    // camera transform
-    gl->objectProgram.setUniformMat4(
-        UNIFORM_MODEL_MAT,
-        gl->objectTransform.getMatrix()
-    );
-    gl->objectProgram.setUniformMat4(
-        UNIFORM_VIEW_MAT,
-        camera.getViewMatrix()
-    );
+    const int cubesLength{ 10 };
+    for (int i = 0; i < cubesLength * cubesLength; ++i)
+       {
+        const float xPos = (i % cubesLength) - (cubesLength / 2.f);
+        const float yPos = (i / cubesLength) - (cubesLength / 2.f);
+        const float zPos = sqrt( pow(xPos, 2) + pow(yPos, 2)) + cubesLength/2.f;
+        
+        gl->objectTransform.setPosition({ xPos, yPos, zPos });
 
-    gl->objectProgram.setUniformMat4(
-        UNIFORM_PERSPECTIVE_MAT,
-        camera.getProjectionMatrix()
-    );
+        gl->objectTransform.update();
 
-    // lighting stuff
-    gl->objectProgram.setUniformVec3f(
-        UNIFORM_LIGHT_COLOR,
-        gl->lightSourceColor
-    );
 
-    gl->objectProgram.setUniformVec3f(
-        UNIFORM_OBJECT_COLOR,
-        gl->objectColor
-    );
+        /// update all uniforms:
+        // CAMERA TRANSFORM, obj color, light source color, light source position
+        // camera transform
+        gl->objectProgram.setUniformMat4(
+            UNIFORM_MODEL_MAT,
+            gl->objectTransform.getMatrix()
+        );
+        gl->objectProgram.setUniformMat4(
+            UNIFORM_VIEW_MAT,
+            camera.getViewMatrix()
+        );
+        gl->objectProgram.setUniformMat4(
+            UNIFORM_PERSPECTIVE_MAT,
+            camera.getProjectionMatrix()
+        );
 
-    // bind object VAO
-    gl->objectCube.bind();
+        // lighting stuff
+        gl->objectProgram.setUniformVec3f(
+            UNIFORM_LIGHT_COLOR,
+            gl->lightSourceColor
+        );
+        gl->objectProgram.setUniformVec3f(
+            UNIFORM_OBJECT_COLOR,
+            gl->objectColor
+        );
+        gl->objectProgram.setUniformVec3f(
+            UNIFORM_LIGHT_SOURCE_POSITION,
+            gl->lightSourceTransform.getPosition()
+        );
+        gl->objectProgram.setUniformVec3f(
+            UNIFORM_VIEW_POSITION,
+            camera.getPosition()
+        );
 
-    // draw object
-    glDrawArrays(GL_TRIANGLES, 0, cubePosVertices.size());
+        // bind object VAO
+        gl->objectCube.bind();
+
+        // draw object
+        glDrawArrays(GL_TRIANGLES, 0, cubePosVertices.size());
+        }
 }
 
 void Application::display()

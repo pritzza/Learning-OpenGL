@@ -77,6 +77,13 @@ private:
 	static constexpr std::string_view UNIFORM_LIGHT_COLOR{ "lightColor" };
 	static constexpr std::string_view UNIFORM_OBJECT_COLOR{ "objectColor" };
 
+	// from Lighting: Basic Lighting
+	static constexpr std::string_view UNIFORM_LIGHT_SOURCE_POSITION{ 
+		"lightSourcePosition" 
+	};
+	static constexpr std::string_view UNIFORM_VIEW_POSITION{ "viewPosition" };
+
+
 private:
 	void initializeObjects();
 
