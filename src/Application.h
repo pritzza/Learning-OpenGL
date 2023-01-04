@@ -3,15 +3,13 @@
 #include <glad/glad.h>  // remember to include glad or glad debug dir in proj
 #include <GLFW/glfw3.h>
 
-#include "Camera.h"
-#include "ModelMatrix.h"
-#include "Window.h"
+#include "gfx/Camera.h"
+#include "gfx/ModelMatrix.h"
+#include "gfx/Window.h"
 
-#include "gl/ShaderProgram.h"
-#include "gl/Texture.h"
-#include "gl/VAO.h"
-
-#include <array>
+#include "gfx/gl/ShaderProgram.h"
+#include "gfx/gl/Texture.h"
+#include "gfx/gl/VAO.h"
 
 class Application
 {

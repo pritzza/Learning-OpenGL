@@ -6,7 +6,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../util/FileReader.h"
+#include "../../util/FileReader.h"
 
 ShaderProgram::ShaderProgram(
     const std::string_view& vertexShaderPath, 

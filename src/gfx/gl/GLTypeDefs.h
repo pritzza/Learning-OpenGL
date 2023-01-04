@@ -2,6 +2,7 @@
 
 #include <KHR/khrplatform.h>
 
+// typedefs
 typedef unsigned int GLenum;
 typedef unsigned char GLboolean;
 typedef unsigned int GLbitfield;
@@ -39,3 +40,16 @@ typedef khronos_int64_t GLint64EXT;
 typedef khronos_uint64_t GLuint64;
 typedef khronos_uint64_t GLuint64EXT;
 typedef struct __GLsync* GLsync;
+
+// macros
+
+#define GL_FALSE 0
+#define GL_TRUE 1
+
+#define GL_BYTE 0x1400
+#define GL_UNSIGNED_BYTE 0x1401
+#define GL_SHORT 0x1402
+#define GL_UNSIGNED_SHORT 0x1403
+#define GL_INT 0x1404
+#define GL_UNSIGNED_INT 0x1405
+#define GL_FLOAT 0x1406

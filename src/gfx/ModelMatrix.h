@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/Math.h"
+#include "../util/Math.h"
 
 class ModelMatrix
 {
