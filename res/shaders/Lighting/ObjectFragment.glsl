@@ -1,5 +1,25 @@
 #version 330 core
 
+// taken from src/gfx/Lighting.h
+// MAKE SURE THE STRUCTURES ARE IDENTICAL
+struct Material
+{
+	vec3 ambientColor;  // color under ambient lighting
+	vec3 diffuseColor;  // color under diffuse lighting (surface color)
+	vec3 specularColor;	// color of specular highlight
+
+	float shininess;    // scattering/radius of specular highlight
+};
+
+struct Light
+{
+	vec3 position;		// light source position
+
+	vec3 ambientColor;	// intensity of ambient light in each RGB component
+	vec3 diffuseColor;	// color of light source
+	vec3 specularColor;	// generall left at vec3(1.0) for max shining
+};
+
 // for diffuse lighting
 in vec3 normal;
 in vec3 fragPosition;
@@ -7,36 +27,29 @@ in vec3 fragPosition;
 out vec4 FragColor;
 
 // for specular lighting
-uniform vec3 lightSourcePosition;
 uniform vec3 viewPosition;
 
-// for basic lighting
-uniform vec3 lightColor;
-uniform vec3 objectColor;
+uniform Material material;
+uniform Light light;
 
 void main()
 {
     // ambient lighting
-    const float ambientStrength = 0.3;
-    vec3 ambientColor = ambientStrength * lightColor;
+    vec3 ambientColor = material.ambientColor * light.ambientColor;
 
     // diffuse lighting
-    vec3 lightDirection = normalize(lightSourcePosition - fragPosition);
+    vec3 lightDirection = normalize(light.position - fragPosition);
     float diffuseStrength = max(dot(normal, lightDirection), 0);
-    vec3 diffuseColor = diffuseStrength * lightColor;
+    vec3 diffuseColor = diffuseStrength * material.diffuseColor * light.diffuseColor;
 
     // specular lighting
     vec3 viewDirection = normalize(fragPosition - viewPosition);
     vec3 reflectionDirection = reflect(lightDirection, normal);
 
-    const float shininess = 32;
-    float specular = pow( max( dot(viewDirection, reflectionDirection), 0), shininess);
-    
-    const float specularStrength = 0.5;
-    vec3 specularColor = specularStrength * specular * lightColor;
+    float specular = pow( max( dot(viewDirection, reflectionDirection), 0), material.shininess);
+    vec3 specularColor = specular * material.specularColor * light.specularColor;
 
-
-    vec3 finalColor = (ambientColor + diffuseColor + specular) * objectColor;
+    vec3 finalColor = ambientColor + diffuseColor + specularColor;
 
     FragColor = vec4(finalColor, 1.0);
 } 

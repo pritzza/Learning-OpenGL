@@ -211,10 +211,23 @@ void Application::initializeObjects()
     };
 
     const std::vector<std::string_view> OBJECT_PROGRAM_UNIFORM_NAMES = {
+        
+        // material
+        UNIFORM_MATERIAL_SHININESS,
+        UNIFORM_MATERIAL_AMBIENT,
+        UNIFORM_MATERIAL_DIFFUSE,
+        UNIFORM_MATERIAL_SPECULAR,
+
+        // light
+        UNIFORM_LIGHT_POSITION,
+        UNIFORM_LIGHT_AMBIENT,
+        UNIFORM_LIGHT_DIFFUSE,
+        UNIFORM_LIGHT_SPECULAR,
+
+        // for specular lighting
         UNIFORM_VIEW_POSITION,
-        UNIFORM_LIGHT_SOURCE_POSITION,
-        UNIFORM_OBJECT_COLOR,
-        UNIFORM_LIGHT_COLOR,
+
+        // camera transform
         UNIFORM_MODEL_MAT,
         UNIFORM_VIEW_MAT,
         UNIFORM_PERSPECTIVE_MAT,
@@ -236,7 +249,11 @@ void Application::initializeObjects()
     };
 
     const std::vector<std::string_view> LIGHT_SOURCE_PROGRAM_UNIFORM_NAMES = {
+
+        // color of light source model
         UNIFORM_LIGHT_COLOR,
+
+        // for camera transform
         UNIFORM_MODEL_MAT,
         UNIFORM_VIEW_MAT,
         UNIFORM_PERSPECTIVE_MAT,
@@ -260,12 +277,12 @@ void Application::initializeObjects()
     camera.setPosition({ 0.0f, 0.f, -10.f });
     camera.setYaw(glm::radians(90.f));
 
-    //gl->objectTransform.setPosition({ 3.f, 0.f, -2.f });
-
     gl->objectTransform.scale(0.8f);
 
     gl->lightSourceTransform.setPosition({ 0.f, 0.f, 0.f });
 
+    gl->light.position = gl->lightSourceTransform.getPosition();
+    gl->light.ambientColor = glm::vec3{ 0.1f };
 }
 
 void Application::applicationLoop()
@@ -323,8 +340,6 @@ void Application::update()
 
     camera.update();
    
-    //gl->objectTransform.setPosition({ 3.f, 0.f, -2.f });
-
     gl->objectTransform.rotate({
         deltaTime/1.f,
         deltaTime/2.f,
@@ -334,13 +349,13 @@ void Application::update()
     //gl->objectTransform.update();
     gl->lightSourceTransform.update();
 
-    gl->lightSourceColor = glm::vec3{ 
+    gl->light.diffuseColor = glm::vec3{ 
         1.0f,                          // r
         (sin(currentTime)/2) + .5 ,    // g
         (cos(currentTime)/2) + .5      // b
     };
     
-    gl->objectColor = glm::vec3{ 
+    gl->objectMaterial.diffuseColor = glm::vec3{ 
         1.0f,           // r
         0.0f,           // g
         1.0f            // b
@@ -373,7 +388,7 @@ void Application::update()
     // lighting stuff
     gl->lightSourceProgram.setUniformVec3f(
         UNIFORM_LIGHT_COLOR,
-        gl->lightSourceColor
+        gl->light.diffuseColor
     );
 
     // bind light source VAO
@@ -390,7 +405,7 @@ void Application::update()
 
     const int cubesLength{ 10 };
     for (int i = 0; i < cubesLength * cubesLength; ++i)
-       {
+    {
         const float xPos = (i % cubesLength) - (cubesLength / 2.f);
         const float yPos = (i / cubesLength) - (cubesLength / 2.f);
         const float zPos = sqrt( pow(xPos, 2) + pow(yPos, 2)) + cubesLength/2.f;
@@ -401,7 +416,8 @@ void Application::update()
 
 
         /// update all uniforms:
-        // CAMERA TRANSFORM, obj color, light source color, light source position
+        /// camera transform, view position, light, and object material
+        
         // camera transform
         gl->objectProgram.setUniformMat4(
             UNIFORM_MODEL_MAT,
@@ -416,22 +432,26 @@ void Application::update()
             camera.getProjectionMatrix()
         );
 
-        // lighting stuff
-        gl->objectProgram.setUniformVec3f(
-            UNIFORM_LIGHT_COLOR,
-            gl->lightSourceColor
-        );
-        gl->objectProgram.setUniformVec3f(
-            UNIFORM_OBJECT_COLOR,
-            gl->objectColor
-        );
-        gl->objectProgram.setUniformVec3f(
-            UNIFORM_LIGHT_SOURCE_POSITION,
-            gl->lightSourceTransform.getPosition()
-        );
+        // lighting stuff (view position, light, object material)
         gl->objectProgram.setUniformVec3f(
             UNIFORM_VIEW_POSITION,
             camera.getPosition()
+        );
+
+        gl->objectProgram.setUniformLight(
+            UNIFORM_LIGHT_POSITION,
+            UNIFORM_LIGHT_AMBIENT,
+            UNIFORM_LIGHT_DIFFUSE,
+            UNIFORM_LIGHT_SPECULAR,
+            gl->light
+        );
+
+        gl->objectProgram.setUniformMaterial(
+            UNIFORM_MATERIAL_SHININESS,
+            UNIFORM_MATERIAL_AMBIENT,
+            UNIFORM_MATERIAL_DIFFUSE,
+            UNIFORM_MATERIAL_SPECULAR,
+            gl->objectMaterial
         );
 
         // bind object VAO
@@ -439,7 +459,7 @@ void Application::update()
 
         // draw object
         glDrawArrays(GL_TRIANGLES, 0, cubePosVertices.size());
-        }
+    }
 }
 
 void Application::display()

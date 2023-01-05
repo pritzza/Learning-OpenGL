@@ -11,6 +11,8 @@
 #include "gfx/gl/Texture.h"
 #include "gfx/gl/VAO.h"
 
+#include "gfx/Lighting.h"
+
 class Application
 {
 public:
@@ -40,11 +42,11 @@ public:
 	{
 		VAO lightSourceCube;
 		ModelMatrix lightSourceTransform;
-		glm::vec3 lightSourceColor;
+		Light light;
 
 		VAO objectCube;
 		ModelMatrix objectTransform;
-		glm::vec3 objectColor;
+		Material objectMaterial;
 
 		ShaderProgram lightSourceProgram;
 		ShaderProgram objectProgram;
@@ -72,14 +74,23 @@ private:
 	static constexpr std::string_view UNIFORM_PERSPECTIVE_MAT{ "perspective" };
 
 	// from Lighting: Colors
-	static constexpr std::string_view UNIFORM_LIGHT_COLOR{ "lightColor" };
-	static constexpr std::string_view UNIFORM_OBJECT_COLOR{ "objectColor" };
+	static constexpr std::string_view UNIFORM_LIGHT_COLOR{ "lightColor" };	// keep for light source shader
 
 	// from Lighting: Basic Lighting
-	static constexpr std::string_view UNIFORM_LIGHT_SOURCE_POSITION{ 
-		"lightSourcePosition" 
-	};
 	static constexpr std::string_view UNIFORM_VIEW_POSITION{ "viewPosition" };
+
+	// from Lighting: Materials
+	static constexpr std::string_view UNIFORM_MATERIAL{ "material" };
+	static constexpr std::string_view UNIFORM_MATERIAL_AMBIENT{ "material.ambientColor" };
+	static constexpr std::string_view UNIFORM_MATERIAL_DIFFUSE{ "material.diffuseColor" };
+	static constexpr std::string_view UNIFORM_MATERIAL_SPECULAR{ "material.specularColor" };
+	static constexpr std::string_view UNIFORM_MATERIAL_SHININESS{ "material.shininess" };
+
+	static constexpr std::string_view UNIFORM_LIGHT{ "light" };
+	static constexpr std::string_view UNIFORM_LIGHT_POSITION{ "light.position" };
+	static constexpr std::string_view UNIFORM_LIGHT_AMBIENT{ "light.ambientColor" };
+	static constexpr std::string_view UNIFORM_LIGHT_DIFFUSE{ "light.diffuseColor" };
+	static constexpr std::string_view UNIFORM_LIGHT_SPECULAR{ "light.specularColor" };
 
 
 private:

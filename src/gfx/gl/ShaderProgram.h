@@ -8,6 +8,9 @@
 
 #include <glm/mat4x4.hpp>
 
+struct Material;
+struct Light;
+
 class ShaderProgram
 {
 private:
@@ -38,6 +41,21 @@ public:
 	void setUniformi(const std::string_view& name, int value);
 	void setUniformVec3f(const std::string_view& name, const glm::vec3& v);
 	void setUniformMat4(const std::string_view& name, const glm::mat4& matrix);
+
+	void setUniformMaterial(
+		const std::string_view& shininess,
+		const std::string_view& ambient,
+		const std::string_view& diffuse,
+		const std::string_view& specular,
+		const Material& mat
+	);
+	void setUniformLight(
+		const std::string_view& position,
+		const std::string_view& ambient,
+		const std::string_view& diffuse,
+		const std::string_view& specular, 
+		const Light& light
+	);
 
 	void use();
 
