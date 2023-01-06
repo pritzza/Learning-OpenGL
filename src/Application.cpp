@@ -12,6 +12,8 @@
 
 #include "util/Math.h"
 
+#include "gfx/Materials.h"
+
 // cube
 static const std::vector<Position> cubePosVertices = {
 
@@ -349,18 +351,15 @@ void Application::update()
     //gl->objectTransform.update();
     gl->lightSourceTransform.update();
 
-    gl->light.diffuseColor = glm::vec3{ 
-        1.0f,                          // r
-        (sin(currentTime)/2) + .5 ,    // g
-        (cos(currentTime)/2) + .5      // b
-    };
+    if (currentTime > 15)   // wait a little before light changes colors
+    {
+        gl->light.diffuseColor = glm::vec3{
+            1.0f,                          // r
+            (sin(currentTime) / 2) + .5 ,    // g
+            (cos(currentTime) / 2) + .5      // b
+        };
+    }
     
-    gl->objectMaterial.diffuseColor = glm::vec3{ 
-        1.0f,           // r
-        0.0f,           // g
-        1.0f            // b
-    };
-
     //// pre rendering frame
     // clear color buffer and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -413,6 +412,11 @@ void Application::update()
         gl->objectTransform.setPosition({ xPos, yPos, zPos });
 
         gl->objectTransform.update();
+
+        // setting object material based on index
+        static constexpr int NUM_MATERIALS{ static_cast<int>(Materials::ID::SIZE) };
+        const Materials::ID matID{ static_cast<Materials::ID>(i % NUM_MATERIALS) };
+        gl->objectMaterial = Materials::MATERIALS.getVal(matID);
 
 
         /// update all uniforms:

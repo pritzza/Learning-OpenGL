@@ -4,11 +4,11 @@
 
 struct Material
 {
-	glm::vec3 ambientColor{ 1.f };	// color under ambient lighting
-	glm::vec3 diffuseColor{ 1.f };	// color under diffuse lighting (surface color)
-	glm::vec3 specularColor{ 1.f };	// color of specular highlight
+	glm::vec3 ambientColor;		// color under ambient lighting
+	glm::vec3 diffuseColor;		// color under diffuse lighting (surface color)
+	glm::vec3 specularColor;	// color of specular highlight
 
-	float shininess{ 32 };			// scattering/radius of specular highlight
+	float shininess;			// scattering/radius of specular highlight 
 };
 
 struct Light
