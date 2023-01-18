@@ -26,7 +26,8 @@ public:
 
 
 	// getters
-	const glm::vec3& getPosition() const	{ return position;	  }
+	const glm::vec3& getPosition() const			{ return position;			}
+	const glm::vec3& getForwardDirection() const	{ return forwardDirection;	}
 	
 	float getPitch() const					{ return pitch;		  }
 	float getYaw() const					{ return yaw;		  }
