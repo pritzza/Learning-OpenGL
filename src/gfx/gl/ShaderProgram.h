@@ -9,6 +9,7 @@
 #include <glm/mat4x4.hpp>
 
 struct Material;
+struct MappedMaterial;
 struct Light;
 
 class ShaderProgram
@@ -49,6 +50,16 @@ public:
 		const std::string_view& specular,
 		const Material& mat
 	);
+
+	void setUniformMaterial(
+		const std::string_view& shininess,
+		const std::string_view& diffuse,
+		const std::string_view& specular,
+		const MappedMaterial& mat,
+		GLuint diffuseMapTextureUnit,
+		GLuint specularMapTextureUnit
+	);
+
 	void setUniformLight(
 		const std::string_view& position,
 		const std::string_view& ambient,

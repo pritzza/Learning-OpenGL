@@ -5,6 +5,7 @@
 #include <stb_image.h>
 
 #include <iostream>
+#include <cassert>
 
 Texture::Texture(const std::string_view& path, GLuint targetTexture)
 {
@@ -69,8 +70,11 @@ void Texture::configure(
 
 void Texture::apply(GLuint textureUnit)
 {
+    // make sure texture unit argument is valid
+    assert(0 <= textureUnit && textureUnit <= 15);
+    
     // active texture unit
-    glActiveTexture(textureUnit);
+    glActiveTexture(GL_TEXTURE0 + textureUnit);
 
     // bind texture to said active texture unit
     bind();

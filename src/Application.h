@@ -46,10 +46,11 @@ public:
 
 		VAO objectCube;
 		ModelMatrix objectTransform;
-		Material objectMaterial;
+		MappedMaterial objectMaterial;
 
 		ShaderProgram lightSourceProgram;
 		ShaderProgram objectProgram;
+
 	};
 
 	std::unique_ptr<OpenGLStuff> gl;
@@ -91,6 +92,14 @@ private:
 	static constexpr std::string_view UNIFORM_LIGHT_AMBIENT{ "light.ambientColor" };
 	static constexpr std::string_view UNIFORM_LIGHT_DIFFUSE{ "light.diffuseColor" };
 	static constexpr std::string_view UNIFORM_LIGHT_SPECULAR{ "light.specularColor" };
+
+	static constexpr std::string_view UNIFORM_MAPPED_MATERIAL_DIFFUSE{ "mappedMaterial.diffuse" };
+	static constexpr std::string_view UNIFORM_MAPPED_MATERIAL_SPECULAR{ "mappedMaterial.specular" };
+	static constexpr std::string_view UNIFORM_MAPPED_MATERIAL_SHININESS{ "mappedMaterial.shininess" };
+
+	// texture unit stuff
+	static constexpr int DIFFUSE_MAP_TEXTURE_UNIT{ 0 };
+	static constexpr int SPECULAR_MAP_TEXTURE_UNIT{ 1 };
 
 
 private:

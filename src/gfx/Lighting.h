@@ -2,6 +2,17 @@
 
 #include <glm/vec3.hpp>
 
+#include "gl/Texture.h"
+
+// For objects of multiple materials
+struct MappedMaterial
+{
+	Texture diffuseMap;			// texture/diffuse/ambient color of object
+	Texture specularMap;		// per fragment specular highlight intensity data
+	float shininess;			// scattering/radius of specular highlight 
+};
+
+// For single material objects
 struct Material
 {
 	glm::vec3 ambientColor;		// color under ambient lighting

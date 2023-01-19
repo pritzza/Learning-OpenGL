@@ -97,9 +97,27 @@ void ShaderProgram::setUniformMaterial(
     // atleast whats in the shader, if not both
 
     glUniform1f(uniforms.at(shininess), material.shininess);
-    glUniform3fv(uniforms.at(ambient),  1, &material.ambientColor [0]);
-    glUniform3fv(uniforms.at(diffuse),  1, &material.diffuseColor [0]);
+    glUniform3fv(uniforms.at(ambient), 1, &material.ambientColor[0]);
+    glUniform3fv(uniforms.at(diffuse), 1, &material.diffuseColor[0]);
     glUniform3fv(uniforms.at(specular), 1, &material.specularColor[0]);
+}
+
+void ShaderProgram::setUniformMaterial(
+    const std::string_view& shininess,
+    const std::string_view& diffuse,
+    const std::string_view& specular,
+    const MappedMaterial& material,
+    GLuint diffuseMapTextureUnit,
+    GLuint specularMapTextureUnit
+)
+{
+    // todo: there's no way i know of doing this, but need to somehow
+    // statically assert that names of Material members line up with
+    // atleast whats in the shader, if not both
+
+    glUniform1f(uniforms.at(shininess), material.shininess);
+    glUniform1i(uniforms.at(diffuse),  diffuseMapTextureUnit);
+    glUniform1i(uniforms.at(specular), specularMapTextureUnit);
 }
 
 void ShaderProgram::setUniformLight(
