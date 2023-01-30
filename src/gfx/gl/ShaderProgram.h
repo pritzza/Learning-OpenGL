@@ -61,10 +61,15 @@ public:
 	);
 
 	void setUniformLight(
+		const std::string_view& isPoint,
 		const std::string_view& position,
+		const std::string_view& direction,
+		const std::string_view& innerCone,
+		const std::string_view& outterCone,
 		const std::string_view& ambient,
 		const std::string_view& diffuse,
-		const std::string_view& specular, 
+		const std::string_view& specular,
+		const std::string_view& attenuationCoeff,
 		const Light& light
 	);
 
@@ -90,4 +95,3 @@ private:
 	void findUniforms(const std::vector<std::string_view>& uniformNames);
 
 };
-

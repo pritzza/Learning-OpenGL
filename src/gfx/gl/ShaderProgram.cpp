@@ -121,21 +121,31 @@ void ShaderProgram::setUniformMaterial(
 }
 
 void ShaderProgram::setUniformLight(
+    const std::string_view& isPoint,
     const std::string_view& position,
+    const std::string_view& direction,
+    const std::string_view& innerCone,
+    const std::string_view& outterCone,
     const std::string_view& ambient,
     const std::string_view& diffuse,
     const std::string_view& specular,
+    const std::string_view& attenuationCoeff,
     const Light& light
 )
 {
     // todo: there's no way i know of doing this, but need to somehow
     // statically assert that names of Material members line up with
     // atleast whats in the shader, if not both
-
+    
+    glUniform1i(uniforms.at(isPoint),       light.isPoint);
+    glUniform1f(uniforms.at(innerCone),     light.innerCone);
+    glUniform1f(uniforms.at(outterCone),    light.outterCone);
     glUniform3fv(uniforms.at(position), 1,  &light.position     [0]);
+    glUniform3fv(uniforms.at(direction), 1, &light.direction    [0]);
     glUniform3fv(uniforms.at(ambient),  1,  &light.ambientColor [0]);
     glUniform3fv(uniforms.at(diffuse),  1,  &light.diffuseColor [0]);
     glUniform3fv(uniforms.at(specular), 1,  &light.specularColor[0]);
+    glUniform3fv(uniforms.at(attenuationCoeff), 1,  &light.attenuationCoefficients[0]);
 }
 
 void ShaderProgram::use()

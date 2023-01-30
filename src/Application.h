@@ -89,9 +89,14 @@ private:
 
 	static constexpr std::string_view UNIFORM_LIGHT{ "light" };
 	static constexpr std::string_view UNIFORM_LIGHT_POSITION{ "light.position" };
+	static constexpr std::string_view UNIFORM_LIGHT_IS_POINT{ "light.isPoint" };
 	static constexpr std::string_view UNIFORM_LIGHT_AMBIENT{ "light.ambientColor" };
 	static constexpr std::string_view UNIFORM_LIGHT_DIFFUSE{ "light.diffuseColor" };
 	static constexpr std::string_view UNIFORM_LIGHT_SPECULAR{ "light.specularColor" };
+	static constexpr std::string_view UNIFORM_LIGHT_K{ "light.k" };
+	static constexpr std::string_view UNIFORM_LIGHT_INNER_CONE{ "light.innerCone" };
+	static constexpr std::string_view UNIFORM_LIGHT_OUTTER_CONE{ "light.outterCone" };
+	static constexpr std::string_view UNIFORM_LIGHT_DIRECTION{ "light.direction" };
 
 	static constexpr std::string_view UNIFORM_MAPPED_MATERIAL_DIFFUSE{ "mappedMaterial.diffuse" };
 	static constexpr std::string_view UNIFORM_MAPPED_MATERIAL_SPECULAR{ "mappedMaterial.specular" };

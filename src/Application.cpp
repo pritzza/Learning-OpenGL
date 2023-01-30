@@ -245,9 +245,14 @@ void Application::initializeObjects()
 
         // light
         UNIFORM_LIGHT_POSITION,
+        UNIFORM_LIGHT_DIRECTION,
+        UNIFORM_LIGHT_OUTTER_CONE,
+        UNIFORM_LIGHT_INNER_CONE,
+        UNIFORM_LIGHT_IS_POINT,
         UNIFORM_LIGHT_AMBIENT,
         UNIFORM_LIGHT_DIFFUSE,
         UNIFORM_LIGHT_SPECULAR,
+        UNIFORM_LIGHT_K,
 
         // for specular lighting
         UNIFORM_VIEW_POSITION,
@@ -310,7 +315,7 @@ void Application::initializeObjects()
     gl->lightSourceTransform.setPosition({ 0.f, 0.f, 0.f });
 
     gl->light.position = gl->lightSourceTransform.getPosition();
-    gl->light.ambientColor = glm::vec3{ 0.1f };
+    gl->light.ambientColor = glm::vec3{ 0.3f };
 }
 
 void Application::applicationLoop()
@@ -336,28 +341,39 @@ void Application::handleInput()
     if (glfwGetKey(glfwWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(glfwWindow, true);
 
+    float moveSpeed{ 1.0f };
+    const float quickSpeedModifier{ 5.0f };
+
+    if (glfwGetKey(glfwWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        moveSpeed *= quickSpeedModifier;
+
+    const float travelDistance = moveSpeed * deltaTime;
+
     if (glfwGetKey(glfwWindow, GLFW_KEY_S) == GLFW_PRESS)
-        camera.moveRelative(Camera::Direction::Backward, deltaTime);
+        camera.moveRelative(Camera::Direction::Backward, travelDistance);
     if (glfwGetKey(glfwWindow, GLFW_KEY_W) == GLFW_PRESS)
-        camera.moveRelative(Camera::Direction::Forward, deltaTime);
+        camera.moveRelative(Camera::Direction::Forward, travelDistance);
     if (glfwGetKey(glfwWindow, GLFW_KEY_A) == GLFW_PRESS)
-        camera.moveRelative(Camera::Direction::Left, deltaTime);
+        camera.moveRelative(Camera::Direction::Left, travelDistance);
     if (glfwGetKey(glfwWindow, GLFW_KEY_D) == GLFW_PRESS)
-        camera.moveRelative(Camera::Direction::Right, deltaTime);
+        camera.moveRelative(Camera::Direction::Right, travelDistance);
 
     if (glfwGetKey(glfwWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.moveAbsolute(Math::J_HAT, deltaTime);
+        camera.moveAbsolute(Math::J_HAT, travelDistance);
     if (glfwGetKey(glfwWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera.moveAbsolute(-Math::J_HAT, deltaTime);
+        camera.moveAbsolute(-Math::J_HAT, travelDistance);
+
+    const float rotationSpeed{ 1.f };
+    const float rotationAngle = rotationSpeed * deltaTime;
 
     if (glfwGetKey(glfwWindow, GLFW_KEY_UP) == GLFW_PRESS)
-        camera.setPitch(camera.getPitch() + deltaTime);
+        camera.setPitch(camera.getPitch() + rotationAngle);
     if (glfwGetKey(glfwWindow, GLFW_KEY_DOWN) == GLFW_PRESS)
-        camera.setPitch(camera.getPitch() - deltaTime);
+        camera.setPitch(camera.getPitch() - rotationAngle);
     if (glfwGetKey(glfwWindow, GLFW_KEY_LEFT) == GLFW_PRESS)
-        camera.setYaw(camera.getYaw() - deltaTime);
+        camera.setYaw(camera.getYaw() - rotationAngle);
     if (glfwGetKey(glfwWindow, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        camera.setYaw(camera.getYaw() + deltaTime);
+        camera.setYaw(camera.getYaw() + rotationAngle);
 }
 
 void Application::update()
@@ -375,11 +391,22 @@ void Application::update()
         deltaTime/3.f
     });
 
+    // update light
+    gl->lightSourceTransform.setPosition({ 0, 0, (sin(currentTime) * 5) - 1 });
+    //gl->lightSourceTransform.setPosition({ 0, -1, 0 });
+    gl->lightSourceTransform.update();
+    gl->light.position = gl->lightSourceTransform.getPosition();
+    gl->light.direction = glm::normalize(glm::vec3{ 0.f, 0.f, -1.f });
+    gl->light.isPoint = true;
+    gl->light.attenuationCoefficients = { 1.0, 0.045, 0.0075 };
+    gl->light.outterCone = std::cosf(glm::radians(20.f));
+    gl->light.innerCone = std::cosf(glm::radians(15.f));
+
     // update lighting
     if (currentTime > 30)   // wait a little before light changes colors
     {
         gl->light.diffuseColor = glm::vec3{
-            1.0f,                          // r
+            1.0f,                            // r
             (sin(currentTime) / 2) + .5 ,    // g
             (cos(currentTime) / 2) + .5      // b
         };
@@ -463,10 +490,15 @@ void Application::update()
         );
 
         gl->objectProgram.setUniformLight(
+            UNIFORM_LIGHT_IS_POINT,
             UNIFORM_LIGHT_POSITION,
+            UNIFORM_LIGHT_DIRECTION,
+            UNIFORM_LIGHT_INNER_CONE,
+            UNIFORM_LIGHT_OUTTER_CONE,
             UNIFORM_LIGHT_AMBIENT,
             UNIFORM_LIGHT_DIFFUSE,
             UNIFORM_LIGHT_SPECULAR,
+            UNIFORM_LIGHT_K,
             gl->light
         );
 
